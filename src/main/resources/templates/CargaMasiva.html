@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultra.net.nz/thyemeleaf/layout"
+    layout:decorate=~{layout}>
+
+<head>
+    <title>Carga Masiva</title>
+</head>
+
+<body layout:fragment="body" class="bg-light">
+    <!-- Contenedor centrado vertical y horizontalmente -->
+    <div class="d-flex justify-content-center align-items-center min-vh-100">
+
+        <div class="container-lg">
+            <div class="row justify-content-center g-4 mt-4">
+                <!-- card 1 formulario de carga -->
+                <div class="col-12 col-sm-10 col-md-6 col-lg-4">
+                    <div class="card text-bg-secondary shadow rounded-4 h-80">
+                        <div class="card-body d-flex flex-column gap-3 py-4">
+                            <button class="btn btn-primary" id="mostrarOpciones"> Mostrar opciones</button>
+                            <button class="btn btn-danger" id="borrarOpcciones"> Borrar registro</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- card 2 dinamico -->
+                <div class="col-12 col-sm-10 col-md-6 col-lg-4" id="btnscargamasiva" style="display: none;">
+                    <div class="card bg-primary text-white shadow rounded-4 mb-4 h-40">
+                        <div class="card-body d-flex align-items-center py-4">
+                            <button class="btn btn-primary w-100" id="mostrarFormulariotxt">
+                                <i class="bi bi-filetype-txt me-2" style="font-size: 1.5em;"></i> Carga Masiva TXT
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card bg-success text-white shadow rounded-4 h-40">
+                        <div class="card-body d-flex align-items-center py-4">
+                            <button class="btn btn-success w-100" id="mostrarFormularioexcel">
+                                <i class="bi bi-filetype-xml me-2" style="font-size: 1.5em;"></i> Carga Masiva Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row g-4 justify-content-center">
+
+                <!-- Formulario para TXT -->
+                <div class="col-12 col-md-6 col-lg-5">
+                    <div class="card shadow rounded-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Carga de archivo TXT</h5>
+                            <p class="card-text">Seleccione un archivo con el formato correcto.</p>
+
+                            <!-- Botón para el formato de archivo txt -->
+                            <a href="#" class="btn btn-primary mb-3" id="btn-descargar">Formato TXT</a>
+                            <a href="#" class="btn btn-success mb-3" id="btn-excel">Formato Excel</a>
+
+                            <!-- Formulario con input tipo archivo -->
+                            <form th:action="@{/Usuario/CargaMasiva}" method="post" enctype="multipart/form-data"
+                                id="form-carga">
+                                <div class="mb-3">
+                                    <!-- Input para subir archivo -->
+                                    <input type="file" name="archivo" class="form-control" id="archivo-input" required>
+                                    <!-- Mensaje de validación -->
+                                    <div id="archivo-msg" class="form-text mt-1"></div>
+                                </div>
+
+                                <!-- Botón para enviar el archivo -->
+                                <button type="submit" class="btn btn-warning w-100" id="btn-enviar" disabled>Enviar
+                                    archivo</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección informativa adicional -->
+                <div class="col-12 col-md-6 col-lg-5" th:if="${exito}">
+                    <div class="card shadow rounded-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Procesar archivo</h5>
+                            <p class="card-text">Archivo procesado con exito: <strong
+                                    th:text="${archivoNombre}">archivo.txt</strong></p>
+                            <a th:href="@{CargaMasiva/Procesar}" class="btn btn-secondary w-100">Procesar archivo</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row g-4 justify-content-center">
+            <!-- Contenido de errores -->
+            <div th:if="${listaErrores != null and !listaErrores.isEmpty()}">
+                <div class="card shadow rounded-4 mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title text-danger">Errores encontrados en el archivo</h5>
+                        <p class="card-text">Corrige los siguientes errores antes de continuar:</p>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm table-striped">
+                                <thead class="table-danger">
+                                    <tr>
+                                        <th>Fila</th>
+                                        <th>Mensaje</th>
+                                        <th>Error</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="error : ${listaErrores}">
+                                        <td th:text="${error.fila}">1</td>
+                                        <td th:text="${error.mensaje}">Nombre</td>
+                                        <td th:text="${error.descripcion}">El nombre es obligatorio</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Estilos para validaciones visuales -->
+    <style>
+        /* Estilo para input válido: borde verde y sombra azul */
+        .valido {
+            border: 2px solid #1eff00 !important;
+            box-shadow: 0 0 5px lightblue;
+        }
+
+        /* Estilo para botón de descarga si el archivo es válido */
+        .btn-valido {
+            color: white !important;
+            background-color: blue !important;
+            border-color: blue !important;
+        }
+
+        .btn-valido-excel {
+            color: white !important;
+            background-color: green !important;
+            border-color: green !important;
+        }
+
+        /* Colores para mensajes de estado */
+        #archivo-msg.valid {
+            color: green;
+        }
+
+        #archivo-msg.invalid {
+            color: red;
+        }
+    </style>
+
+    <!-- Script para validaciones del archivo -->
+    <script>
+        $(document).ready(function () {
+            // Selección de elementos
+            const $input = $("#archivo-input");
+            const $form = $("#form-carga");
+            const $btnEnviar = $("#btn-enviar");
+            const $btnDescargar = $("#btn-descargar");
+            const $btnexcel = $("#btn-excel");
+            const $msg = $("#archivo-msg");
+            const $btncargar = $("#mostrarOpciones");
+            const $btnborrar = $("#borrarOpciones");
+            const $btnscargamasiva = $("#btnscargamasiva");
+
+            // Evento cuando el archivo cambia
+            $input.on("change", function () {
+                const archivo = this.files[0];
+
+                if (!archivo) {
+                    resetEstilos();
+                    return;
+                }
+
+                const extension = archivo.name.split('.').pop().toLowerCase();
+
+                resetEstilos(); // Siempre resetear antes
+
+                if (extension === "txt") {
+                    $input.addClass("valido");
+                    $btnDescargar.addClass("btn-valido").show();
+                    $btnexcel.hide();
+                    $btnEnviar.prop("disabled", false).addClass("btn-valido");
+                    $msg.text("✅ Archivo .txt válido").removeClass("invalid").addClass("valid");
+                } else if (extension === "xlsx") {
+                    $input.addClass("valido");
+                    $btnexcel.addClass("btn-valido-excel").show();
+                    $btnDescargar.hide();
+                    $btnEnviar.prop("disabled", false).addClass("btn-valido-excel");
+                    $msg.text("✅ Archivo .xlsx válido").removeClass("invalid").addClass("valid");
+                } else {
+                    alert("Solo se permiten archivos con extensión .txt o .xlsx");
+                    limpiarInput();
+                    $msg.text("❌ Archivo no válido").removeClass("valid").addClass("invalid");
+                }
+            });
+
+            // Función para resetear estilos y mensajes
+            function resetEstilos() {
+                $input.removeClass("valido");
+                $btnDescargar.removeClass("btn-valido").hide();
+                $btnexcel.removeClass("btn-valido-excel").hide();
+                $btnEnviar.removeClass("btn-valido btn-valido-excel").prop("disabled", true);
+                $msg.text("").removeClass("valid invalid");
+            }
+
+            // Función para limpiar el input file
+            function limpiarInput() {
+                $input.val("");
+            }
+
+            // Mostrar opciones
+            $btncargar.on("click", function () {
+                $btnscargamasiva.show(500);
+            });
+
+            // Borrar opciones
+            $btnborrar.on("click", function () {
+                $btnscargamasiva.hide();
+            });
+
+            // Validación final antes del envío del formulario
+            $form.on("submit", function (e) {
+                const archivo = $input[0].files[0];
+                const extension = archivo ? archivo.name.split('.').pop().toLowerCase() : "";
+
+                if (extension !== "txt" && extension !== "xlsx") {
+                    alert("Archivo inválido. Solo se permiten .txt o .xlsx.");
+                    e.preventDefault();
+                    resetEstilos();
+                    limpiarInput();
+                    $msg.text("❌ Archivo no válido").removeClass("valid").addClass("invalid");
+                }
+            });
+        });
+    </script>
+
+
+</body>
+
+</html>
