@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -76,7 +77,8 @@ public class UsuarioController {
     @GetMapping
     public String Index(Model model) {
 
-        Result result = usuarioDAOImplementation.GetAll();
+        //Result result = usuarioDAOImplementation.GetAll();
+        Result result = usuarioDAOImplementation.GetAllJPA();
         Result resultRol = RolDAOImplementation.GetAll();
         Usuario usuarioBusqueda = new Usuario();
         usuarioBusqueda.Rol = new Rol();
@@ -252,23 +254,31 @@ public class UsuarioController {
                     usuarioDireccion.Usuario.setApellidoPaterno(row.getCell(1).toString());
                     usuarioDireccion.Usuario.setApellidoMaterno(row.getCell(2).toString());
                     usuarioDireccion.Usuario.setImagen(null);
-                    DataFormatter dattaFormatter = new DataFormatter();
-                    usuarioDireccion.Usuario.setFNacimiento(row.getCell(3).getDateCellValue());
-                    usuarioDireccion.Usuario.setNCelular(row.getCell(4).toString());
+
+                    if (DateUtil.isCellDateFormatted(row.getCell(4))) {
+                        usuarioDireccion.Usuario.setFNacimiento(row.getCell(4).getDateCellValue());
+                    } else {
+                        double fechaTexto = row.getCell(4).getNumericCellValue();
+                        Date formato = DateUtil.getJavaDate(fechaTexto);
+                        usuarioDireccion.Usuario.setFNacimiento(formato);
+                    }
+
+                    usuarioDireccion.Usuario.setNCelular(row.getCell(5).toString());
 
                     usuarioDireccion.Usuario.Rol = new Rol();
-                    usuarioDireccion.Usuario.Rol.setIdRol(Integer.parseInt(row.getCell(5).toString()));
-                    usuarioDireccion.Usuario.setCURP(row.getCell(6).toString());
-                    usuarioDireccion.Usuario.setUsername(row.getCell(7).toString());
-                    usuarioDireccion.Usuario.setEmail(row.getCell(8).toString());
-                    usuarioDireccion.Usuario.setPassword(row.getCell(9).toString());
-                    usuarioDireccion.Usuario.setSexo(row.getCell(10).toString().charAt(0));
-                    usuarioDireccion.Usuario.setTelefono(row.getCell(11).toString());
-                    usuarioDireccion.Direccion.setCalle(row.getCell(12).toString());
-                    usuarioDireccion.Direccion.setNumeroExterior(row.getCell(13).toString());
-                    usuarioDireccion.Direccion.setNumeroInterior(row.getCell(14).toString());
+                    usuarioDireccion.Usuario.Rol.setIdRol(Integer.parseInt(row.getCell(6).toString()));
+                    usuarioDireccion.Usuario.setCURP(row.getCell(7).toString());
+                    usuarioDireccion.Usuario.setUsername(row.getCell(8).toString());
+                    usuarioDireccion.Usuario.setEmail(row.getCell(9).toString());
+                    usuarioDireccion.Usuario.setPassword(row.getCell(10).toString());
+                    usuarioDireccion.Usuario.setSexo(row.getCell(11).toString().charAt(0));
+                    usuarioDireccion.Usuario.setTelefono(row.getCell(12).toString());
+                    usuarioDireccion.Direccion.setCalle(row.getCell(13).toString());
+                    usuarioDireccion.Direccion.setNumeroExterior(row.getCell(14).toString());
+                    usuarioDireccion.Direccion.setNumeroInterior(row.getCell(15).toString());
                     usuarioDireccion.Direccion.Colonia = new Colonia();
-                    usuarioDireccion.Direccion.Colonia.setIdColonia(Integer.parseInt(row.getCell(15).toString()));
+                    usuarioDireccion.Direccion.Colonia.setIdColonia(Integer.parseInt(row.getCell(16).toString()));
+                    usuarioDireccion.Usuario.setStatus(Integer.parseInt(row.getCell(17).toString()));
 
                 }
             }

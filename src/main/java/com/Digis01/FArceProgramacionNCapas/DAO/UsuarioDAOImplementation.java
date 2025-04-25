@@ -9,11 +9,14 @@ import com.Digis01.FArceProgramacionNCapas.ML.Result;
 import com.Digis01.FArceProgramacionNCapas.ML.Rol;
 import com.Digis01.FArceProgramacionNCapas.ML.Usuario;
 import com.Digis01.FArceProgramacionNCapas.ML.UsuarioDireccion;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import java.util.Date;
 import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,8 +26,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class UsuarioDAOImplementation implements IUsuarioDAO {
 
-    @Autowired //Inyección dependencias (field, contructor, setter)
+    @Autowired //Inyección dependencias (field, contructor, setter) JDBCTemplate
     private JdbcTemplate jdbcTemplate; // conexión directa
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Override
     public Result GetAll() {
@@ -119,6 +125,80 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
     }
 
     @Override
+    public Result GetAllJPA() {
+        Result result = new Result();
+
+        try {
+            // Obtener todos los usuarios con sus direcciones (se asume fetch = EAGER o relación cargada)
+            TypedQuery<com.Digis01.FArceProgramacionNCapas.JPA.Usuario> queryUsuarios
+                    = entityManager.createQuery("FROM Usuario", com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class);
+
+            List<com.Digis01.FArceProgramacionNCapas.JPA.Usuario> usuarios = queryUsuarios.getResultList();
+            result.objects = new ArrayList<>();
+
+            for (com.Digis01.FArceProgramacionNCapas.JPA.Usuario usuarioJPA : usuarios) {
+                UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
+                Usuario usuario = new Usuario();
+
+                // Mapear propiedades básicas del usuario
+                usuario.setIdUsuario(usuarioJPA.getIdUsuario());
+                usuario.setNombre(usuarioJPA.getNombre());
+                usuario.setApellidoPaterno(usuarioJPA.getApellidoPaterno());
+                usuario.setApellidoMaterno(usuarioJPA.getApellidoMaterno());
+                usuario.setImagen(usuarioJPA.getImagen());
+                usuario.setUsername(usuarioJPA.getUsername());
+                usuario.setEmail(usuarioJPA.getEmail());
+                usuario.setPassword(usuarioJPA.getPassword());
+                usuario.setFNacimiento(usuarioJPA.getFNacimiento());
+                usuario.setSexo(usuarioJPA.getSexo());
+                usuario.setTelefono(usuarioJPA.getTelefono());
+                usuario.setNCelular(usuarioJPA.getNCelular());
+                usuario.setCURP(usuarioJPA.getCURP());
+
+                // Mapear Rol
+                if (usuarioJPA.getRol() != null) {
+                    Rol rol = new Rol();
+                    rol.setIdRol(usuarioJPA.getRol().getIdRol());
+                    rol.setNombre(usuarioJPA.getRol().getNombre());
+                    usuario.setRol(rol);
+                }
+                
+                TypedQuery<com.Digis01.FArceProgramacionNCapas.JPA.Direccion> queryDireccion = entityManager.createQuery("FROM Direccion WHERE Usaurio.IdUsuario = :idusuario", com.Digis01.FArceProgramacionNCapas.JPA.Direccion.class);
+                queryDireccion.setParameter("idusuario", usuario.getIdUsuario());
+                
+                List<com.Digis01.FArceProgramacionNCapas.JPA.Direccion> direcionesJPA = queryDireccion.getResultList();
+                
+                usuarioDireccion.Direcciones = new ArrayList<>();
+                
+                for (com.Digis01.FArceProgramacionNCapas.JPA.Direccion direccionJPA : direcionesJPA) {
+                    Direccion direccion = new Direccion();
+                    direccion.setIdDireccion(direccionJPA.getIdDireccion());
+                    direccion.setCalle(direccionJPA.getCalle());
+                    direccion.setNumeroExterior(direccionJPA.getNumeroExterior());
+                    direccion.setNumeroInterior(direccionJPA.getNumeroInterior());
+                    direccion.Colonia = new Colonia();
+                    
+                    direccion.Colonia.setIdColonia(direccionJPA.Colonia.getIdColonia());
+                    
+                    usuarioDireccion.Direcciones.add(direccion);
+                }
+                
+                result.objects.add(usuarioDireccion);
+            }
+
+            result.correct = true;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            result.correct = false;
+            result.errorMessage = "Error al obtener los usuarios con JPA.";
+            result.ex = ex;
+        }
+
+        return result;
+    }
+
+    @Override
     public Result Add(UsuarioDireccion usuarioDireccion) {
         Result result = new Result();
 
@@ -157,7 +237,7 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
                 callableStatement.setString(15, usuarioDireccion.Direccion.getNumeroExterior());
                 callableStatement.setString(16, usuarioDireccion.Direccion.getNumeroInterior());
                 callableStatement.setInt(17, usuarioDireccion.Direccion.Colonia.getIdColonia());
-                
+
                 callableStatement.setInt(18, usuarioDireccion.Usuario.getStatus());
 
                 callableStatement.executeUpdate();
@@ -455,4 +535,5 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
 
         return result;
     }
+
 }

@@ -19,4 +19,6 @@ public interface IUsuarioDAO {
     Result UpdateStatus(Usuario usuario);
     
     Result GetAllDinamico(Usuario usuario);
+    
+    Result GetAllJPA();
 }
