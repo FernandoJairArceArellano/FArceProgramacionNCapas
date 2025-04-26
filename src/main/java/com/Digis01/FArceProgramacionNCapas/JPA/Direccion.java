@@ -7,12 +7,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 public class Direccion {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "iddireccion")
     private int IdDireccion;
     
@@ -31,7 +32,7 @@ public class Direccion {
 
     @JoinColumn(name = "idusuario")
     @ManyToOne
-    public Usuario usuario;
+    public Usuario Usuario;
     
     public int getIdDireccion() {
         return IdDireccion;

@@ -21,4 +21,14 @@ public interface IUsuarioDAO {
     Result GetAllDinamico(Usuario usuario);
     
     Result GetAllJPA();
+    
+    Result AddJPA(UsuarioDireccion usuarioDireccion);
+    
+    Result DireccionesByIdUsuarioJPA(int IdUsuario);
+    
+    Result GetByIdJPA(int IdUsuario);
+    
+    Result UpdateJPA(Usuario usuario);
+    
+    Result DeleteJPA(int IdUsuario);
 }

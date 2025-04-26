@@ -22,7 +22,6 @@ import jakarta.validation.Valid;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.text.DateFormat;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -30,7 +29,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -77,15 +75,15 @@ public class UsuarioController {
     @GetMapping
     public String Index(Model model) {
 
-        //Result result = usuarioDAOImplementation.GetAll();
-        Result result = usuarioDAOImplementation.GetAllJPA();
+        Result result = usuarioDAOImplementation.GetAll();
+        Result resultJPA = usuarioDAOImplementation.GetAllJPA();
         Result resultRol = RolDAOImplementation.GetAll();
         Usuario usuarioBusqueda = new Usuario();
         usuarioBusqueda.Rol = new Rol();
 
         model.addAttribute("usuarioBusqueda", usuarioBusqueda);
         model.addAttribute("roles", resultRol.object);
-        model.addAttribute("listaUsuarios", result.objects);
+        model.addAttribute("listaUsuarios", resultJPA.objects);
 
         return "UsuarioIndex";
     }
@@ -109,9 +107,23 @@ public class UsuarioController {
             return "UsuarioForm";
         } else { // Edicion
             System.out.println("Voy a editar");
-            Result result = usuarioDAOImplementation.direccionesByIdUsuario(IdUsuario);
+//            Result result = usuarioDAOImplementation.direccionesByIdUsuario(IdUsuario);
+            Result result = usuarioDAOImplementation.DireccionesByIdUsuarioJPA(IdUsuario);
             model.addAttribute("usuarioDirecciones", result.object);
             return "UsuarioDetail";
+        }
+    }
+
+    @GetMapping("Delete/{IdUsuario}")
+    public String deleteUsuario(@PathVariable int IdUsuario, Model model) {
+        Result result = usuarioDAOImplementation.DeleteJPA(IdUsuario);
+
+        if (result.correct) {
+            // Redirigir a la lista de usuarios si todo salió bien
+            return "redirect:/Usuario";
+        } else {
+            model.addAttribute("error", result.errorMessage);
+            return "error"; // O tu vista personalizada de error
         }
     }
 
@@ -419,7 +431,8 @@ public class UsuarioController {
             System.out.println("Voy a editar datos del usuario");
             UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
 
-            usuarioDireccion = (UsuarioDireccion) usuarioDAOImplementation.GetById(IdUsuario).object;
+//            usuarioDireccion = (UsuarioDireccion) usuarioDAOImplementation.GetById(IdUsuario).object;
+            usuarioDireccion = (UsuarioDireccion) usuarioDAOImplementation.GetByIdJPA(IdUsuario).object;
             usuarioDireccion.Direccion = new Direccion();   //Error de linea java.lang.NullPointerException: Cannot assign field "Direccion" because "usuarioDireccion" is null
             usuarioDireccion.Direccion.setIdDireccion(-1);
             model.addAttribute("usuarioDireccion", usuarioDireccion);
@@ -495,11 +508,14 @@ public class UsuarioController {
 
         if (usuarioDireccion.Usuario.getIdUsuario() == 0) {
             System.out.println("Estoy agregando un nuevo usuario y direccion");
-            usuarioDAOImplementation.Add(usuarioDireccion);
+            //usuarioDAOImplementation.Add(usuarioDireccion);
+            usuarioDAOImplementation.AddJPA(usuarioDireccion);
+
         } else {
             if (usuarioDireccion.Direccion.getIdDireccion() == -1) { // Editar Usuario
                 System.out.println("Estoy actualizando un usuario");
-                usuarioDAOImplementation.Update(usuarioDireccion.Usuario);
+                //usuarioDAOImplementation.Update(usuarioDireccion.Usuario);
+                usuarioDAOImplementation.UpdateJPA(usuarioDireccion.Usuario);
             } else if (usuarioDireccion.Direccion.getIdDireccion() == 0) { // Agregar direccion
                 System.out.println("Estoy agregando direccion");
                 direccionDAOImplementation.DireccionAdd(usuarioDireccion);

@@ -12,7 +12,7 @@ import jakarta.persistence.ManyToOne;
 public class Colonia {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idcolonia")
     private int IdColonia;
     
