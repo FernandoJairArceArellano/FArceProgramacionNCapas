@@ -31,4 +31,8 @@ public interface IUsuarioDAO {
     Result UpdateJPA(Usuario usuario);
     
     Result DeleteJPA(int IdUsuario);
+    
+    Result UpdateStatusJPA(Usuario usuario);
+    
+    Result GetAllDinamicoJPA(Usuario usuario);
 }

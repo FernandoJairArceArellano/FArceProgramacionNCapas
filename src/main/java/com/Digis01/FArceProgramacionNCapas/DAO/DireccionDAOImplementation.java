@@ -2,8 +2,12 @@ package com.Digis01.FArceProgramacionNCapas.DAO;
 
 import com.Digis01.FArceProgramacionNCapas.ML.Colonia;
 import com.Digis01.FArceProgramacionNCapas.ML.Direccion;
+import com.Digis01.FArceProgramacionNCapas.ML.Estado;
+import com.Digis01.FArceProgramacionNCapas.ML.Municipio;
+import com.Digis01.FArceProgramacionNCapas.ML.Pais;
 import com.Digis01.FArceProgramacionNCapas.ML.Result;
 import com.Digis01.FArceProgramacionNCapas.ML.UsuarioDireccion;
+import jakarta.persistence.EntityManager;
 import java.sql.ResultSet;
 import java.sql.Types;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +20,9 @@ public class DireccionDAOImplementation implements IDireccionDAO {
 
     @Autowired
     JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Override
     public Result GetById(int IdDireccion) {
@@ -70,6 +77,62 @@ public class DireccionDAOImplementation implements IDireccionDAO {
     }
 
     @Override
+    public Result GetByIdJPA(int IdDireccion) {
+        Result result = new Result();
+
+        try {
+            // Buscar la direccion y sus datos
+            com.Digis01.FArceProgramacionNCapas.JPA.Direccion direccionJPA
+                    = entityManager.find(com.Digis01.FArceProgramacionNCapas.JPA.Direccion.class, IdDireccion);
+
+            if (direccionJPA != null) {
+                Direccion direccionML = new Direccion();
+
+                // Mapear datos básicos
+                direccionML.setIdDireccion(direccionJPA.getIdDireccion());
+                direccionML.setCalle(direccionJPA.getCalle());
+                direccionML.setNumeroExterior(direccionJPA.getNumeroExterior());
+                direccionML.setNumeroInterior(direccionJPA.getNumeroInterior());
+
+                // Mapear la Colonia
+                direccionML.Colonia = new Colonia();
+                direccionML.Colonia.setIdColonia(direccionJPA.getColonia().getIdColonia());
+                direccionML.Colonia.setCodigoPostal(direccionJPA.getColonia().getCodigoPostal());
+                direccionML.Colonia.setNombre(direccionJPA.getColonia().getNombre());
+
+                // Mapear el Municipio
+                direccionML.Colonia.Municipio = new Municipio();
+                direccionML.Colonia.Municipio.setIdMunicipio(direccionJPA.getColonia().getMunicipio().getIdMunicipio());
+                direccionML.Colonia.Municipio.setNombre(direccionJPA.getColonia().getMunicipio().getNombre());
+
+                // Mapear el Estado
+                direccionML.Colonia.Municipio.Estado = new Estado();
+                direccionML.Colonia.Municipio.Estado.setIdEstado(direccionJPA.getColonia().getMunicipio().getEstado().getIdEstado());
+                direccionML.Colonia.Municipio.Estado.setNombre(direccionJPA.getColonia().getMunicipio().getEstado().getNombre());
+
+                // Mapear el País
+                direccionML.Colonia.Municipio.Estado.Pais = new Pais();
+                direccionML.Colonia.Municipio.Estado.Pais.setIdPais(direccionJPA.getColonia().getMunicipio().getEstado().getPais().getIdPais());
+                direccionML.Colonia.Municipio.Estado.Pais.setNombre(direccionJPA.getColonia().getMunicipio().getEstado().getPais().getNombre());
+
+                // Asignar al result
+                result.object = direccionML;
+                result.correct = true;
+
+            } else {
+                result.correct = true;
+                result.errorMessage = "Direccion no encontrada.";
+            }
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+
+        return result;
+    }
+
+    @Override
     public Result DireccionAdd(UsuarioDireccion usuarioDireccion) {
         Result result = new Result();
 
@@ -92,6 +155,21 @@ public class DireccionDAOImplementation implements IDireccionDAO {
             result.errorMessage = ex.getLocalizedMessage();
             result.ex = ex;
             ex.printStackTrace();
+        }
+
+        return result;
+    }
+
+    @Override
+    public Result DireccionAddJPA(UsuarioDireccion usuarioDireccion) {
+        Result result = new Result();
+
+        try {
+
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
         }
 
         return result;
@@ -125,6 +203,21 @@ public class DireccionDAOImplementation implements IDireccionDAO {
             result.errorMessage = ex.getLocalizedMessage();
             result.ex = ex;
         }
+        return result;
+    }
+
+    @Override
+    public Result UpdateByIdJPA(UsuarioDireccion usuarioDireccion) {
+        Result result = new Result();
+
+        try {
+
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+
         return result;
     }
 

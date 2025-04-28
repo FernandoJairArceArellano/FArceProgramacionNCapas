@@ -13,6 +13,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
+import java.sql.CallableStatement;
 import java.util.Date;
 import java.sql.ResultSet;
 import java.sql.Types;
@@ -653,25 +654,52 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
         Result result = new Result();
 
         try {
-            jdbcTemplate.execute("CALL UsuarioUpdateStatus (?,?)", (CallableStatementCallback<Integer>) callableStatement -> {
+            int rowsAffected = jdbcTemplate.update(connection -> {
+                CallableStatement callableStatement = connection.prepareCall("{CALL UsuarioUpdateStatus(?, ?)}");
                 callableStatement.setInt(1, usuario.getIdUsuario());
                 callableStatement.setInt(2, usuario.getStatus());
-                int rowsAffected = callableStatement.executeUpdate();
-                if (rowsAffected > 0) {
-                    result.correct = true;
-                } else {
-                    result.correct = false;
-                    result.errorMessage = "Error en la actualización";
-                }
-
-                return 1;
+                return callableStatement;
             });
+
+            if (rowsAffected > 0) {
+                result.correct = true;
+            } else {
+                result.correct = false;
+                result.errorMessage = "No se actualizó ningún registro.";
+            }
         } catch (Exception ex) {
             result.correct = false;
             result.errorMessage = ex.getLocalizedMessage();
             result.ex = ex;
         }
 
+        return result;
+    }
+
+    @Transactional
+    @Override
+    public Result UpdateStatusJPA(Usuario usuario) {
+        Result result = new Result();
+        try {
+            com.Digis01.FArceProgramacionNCapas.JPA.Usuario usuarioJPA
+                    = entityManager.find(com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class, usuario.getIdUsuario());
+            if (usuarioJPA != null) {
+                System.out.println("Usuario encontrado con Id: " + usuario.getIdUsuario());
+                // Actualizar campo de Status
+                usuarioJPA.setStatus(usuario.getStatus());
+                entityManager.merge(usuarioJPA);
+                //entityManager.flush();
+
+                result.correct = true;
+            } else {
+                result.correct = false;
+                result.errorMessage = "Usuario no encontrado con Id: " + usuario.getIdUsuario();
+            }
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
         return result;
     }
 
@@ -772,6 +800,138 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
         return result;
     }
 
+    @Override
+    public Result GetAllDinamicoJPA(Usuario usuario) {
+        Result result = new Result();
+
+        try {
+
+            // Construccion de query
+            String jpql = "SELECT u FROM Usuario u WHERE 1=1";
+
+            // Validacion de datos que se recibe segun los filtros
+            if (usuario.getNombre() != null && !usuario.getNombre().isEmpty()) {
+                jpql += " AND u.nombre LIKE :nombre";
+            }
+
+            if (usuario.getApellidoPaterno() != null && !usuario.getApellidoPaterno().isEmpty()) {
+                jpql += " AND u.apellidoPaterno LIKE :apellidoPaterno";
+            }
+
+            if (usuario.getApellidoMaterno() != null && !usuario.getApellidoMaterno().isEmpty()) {
+                jpql += " AND u.apellidoMaterno LIKE :apellidoMaterno";
+            }
+
+            if (usuario.getRol() != null && usuario.getRol().getIdRol() > 0) {
+                jpql += " AND u.rol.idRol = :idRol";
+            }
+
+            // Ordenar los resultados
+            jpql += " ORDER BY u.idUsuario";
+
+            // Creaccion de queery con armado
+            TypedQuery<com.Digis01.FArceProgramacionNCapas.JPA.Usuario> query = entityManager.createQuery(jpql, com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class);
+
+            // Asignar parámetros
+            if (usuario.getNombre() != null && !usuario.getNombre().isEmpty()) {
+                query.setParameter("nombre", "%" + usuario.getNombre() + "%");
+            }
+
+            if (usuario.getApellidoPaterno() != null && !usuario.getApellidoPaterno().isEmpty()) {
+                query.setParameter("apellidoPaterno", "%" + usuario.getApellidoPaterno() + "%");
+            }
+
+            if (usuario.getApellidoMaterno() != null && !usuario.getApellidoMaterno().isEmpty()) {
+                query.setParameter("apellidoMaterno", "%" + usuario.getApellidoMaterno() + "%");
+            }
+
+            if (usuario.getRol() != null && usuario.getRol().getIdRol() > 0) {
+                query.setParameter("idRol", usuario.getRol().getIdRol());
+            }
+
+            List<com.Digis01.FArceProgramacionNCapas.JPA.Usuario> usuariosJPA = query.getResultList();
+            result.objects = new ArrayList<>();
+
+            // Procesar datos de cada usuario
+            for (com.Digis01.FArceProgramacionNCapas.JPA.Usuario usuarioJPA : usuariosJPA) {
+                UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
+                Usuario user = new Usuario(); // Instancia para no sobrescribir
+
+                // Mapear datos del usuario
+                user.setIdUsuario(usuarioJPA.getIdUsuario());
+                user.setNombre(usuarioJPA.getNombre());
+                user.setApellidoPaterno(usuarioJPA.getApellidoPaterno());
+                user.setApellidoMaterno(usuarioJPA.getApellidoMaterno());
+                user.setImagen(usuarioJPA.getImagen());
+                user.setUsername(usuarioJPA.getUsername());
+                user.setEmail(usuarioJPA.getEmail());
+                user.setPassword(usuarioJPA.getPassword());
+                user.setFNacimiento(usuarioJPA.getFNacimiento());
+                user.setSexo(usuarioJPA.getSexo());
+                user.setTelefono(usuarioJPA.getTelefono());
+                user.setNCelular(usuarioJPA.getNCelular());
+                user.setCURP(usuarioJPA.getCURP());
+                user.setStatus(usuarioJPA.getStatus());
+
+                if (usuarioJPA.getRol() != null) {
+                    Rol rol = new Rol();
+                    rol.setIdRol(usuarioJPA.getRol().getIdRol());
+                    rol.setNombre(usuarioJPA.getRol().getNombre());
+                    user.setRol(rol);
+                }
+
+                usuarioDireccion.Usuario = user;
+
+                // Cargar de Direcciones
+                TypedQuery<com.Digis01.FArceProgramacionNCapas.JPA.Direccion> queryDireccion = entityManager.createQuery(
+                        "FROM Direccion d WHERE d.usuario.idUsuario = :IdUsuario",
+                        com.Digis01.FArceProgramacionNCapas.JPA.Direccion.class
+                );
+                queryDireccion.setParameter("IdUsuario", user.getIdUsuario());
+
+                List<com.Digis01.FArceProgramacionNCapas.JPA.Direccion> direccionesJPA = queryDireccion.getResultList();
+
+                usuarioDireccion.Direcciones = new ArrayList<>();
+
+                for (com.Digis01.FArceProgramacionNCapas.JPA.Direccion direccionJPA : direccionesJPA) {
+                    Direccion direccion = new Direccion();
+                    direccion.setIdDireccion(direccionJPA.getIdDireccion());
+                    direccion.setCalle(direccionJPA.getCalle() != null ? direccionJPA.getCalle() : "Sin dirección registrada");
+                    direccion.setNumeroExterior(direccionJPA.getNumeroExterior() != null ? direccionJPA.getNumeroExterior() : "");
+                    direccion.setNumeroInterior(direccionJPA.getNumeroInterior() != null ? direccionJPA.getNumeroInterior() : "");
+
+                    direccion.Colonia = new Colonia();
+                    direccion.Colonia.setIdColonia(direccionJPA.getColonia().getIdColonia());
+                    direccion.Colonia.setNombre(direccionJPA.getColonia().getNombre());
+                    direccion.Colonia.setCodigoPostal(direccionJPA.getColonia().getCodigoPostal());
+
+                    direccion.Colonia.Municipio = new Municipio();
+                    direccion.Colonia.Municipio.setNombre(direccionJPA.getColonia().getMunicipio().getNombre());
+
+                    direccion.Colonia.Municipio.Estado = new Estado();
+                    direccion.Colonia.Municipio.Estado.setNombre(direccionJPA.getColonia().getMunicipio().getEstado().getNombre());
+
+                    direccion.Colonia.Municipio.Estado.Pais = new Pais();
+                    direccion.Colonia.Municipio.Estado.Pais.setNombre(direccionJPA.getColonia().getMunicipio().getEstado().getPais().getNombre());
+
+                    usuarioDireccion.Direcciones.add(direccion);
+                }
+
+                result.objects.add(usuarioDireccion);
+            }
+
+            result.correct = true;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            result.correct = false;
+            result.errorMessage = "Error al obtener usuarios dinámicos con JPA.";
+            result.ex = ex;
+        }
+
+        return result;
+    }
+
     @Transactional
     @Override
     public Result DeleteJPA(int idUsuario) {
@@ -779,21 +939,27 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
 
         try {
             // Buscar el usuario por su ID
-            Usuario usuario = entityManager.find(Usuario.class, idUsuario);
+            com.Digis01.FArceProgramacionNCapas.JPA.Usuario usuario
+                    = entityManager.find(com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class, idUsuario);
 
             if (usuario != null) {
                 // Buscar y eliminar direcciones asociadas al usuario
-                TypedQuery<Direccion> queryDirecciones = entityManager.createQuery(
-                        "FROM Direccion WHERE Usuario.IdUsuario = :idUsuario", Direccion.class
-                );
+                TypedQuery<com.Digis01.FArceProgramacionNCapas.JPA.Direccion> queryDirecciones = entityManager.createQuery(
+                        "FROM Direccion WHERE Usuario.IdUsuario = :idUsuario", com.Digis01.FArceProgramacionNCapas.JPA.Direccion.class);
                 queryDirecciones.setParameter("idUsuario", idUsuario);
-                List<Direccion> direcciones = queryDirecciones.getResultList();
+                List<com.Digis01.FArceProgramacionNCapas.JPA.Direccion> direcciones = queryDirecciones.getResultList();
 
-                for (Direccion direccion : direcciones) {
+                for (com.Digis01.FArceProgramacionNCapas.JPA.Direccion direccion : direcciones) {
+                    if (!entityManager.contains(direccion)) {
+                        direccion = entityManager.merge(direccion);
+                    }
                     entityManager.remove(direccion);
                 }
 
                 // Eliminar el usuario después de eliminar sus direcciones
+                if (!entityManager.contains(usuario)) {
+                    usuario = entityManager.merge(usuario);
+                }
                 entityManager.remove(usuario);
 
                 result.correct = true;

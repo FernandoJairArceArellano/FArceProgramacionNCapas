@@ -107,7 +107,7 @@ public class UsuarioController {
             return "UsuarioForm";
         } else { // Edicion
             System.out.println("Voy a editar");
-//            Result result = usuarioDAOImplementation.direccionesByIdUsuario(IdUsuario);
+            //Result result = usuarioDAOImplementation.direccionesByIdUsuario(IdUsuario);
             Result result = usuarioDAOImplementation.DireccionesByIdUsuarioJPA(IdUsuario);
             model.addAttribute("usuarioDirecciones", result.object);
             return "UsuarioDetail";
@@ -431,7 +431,7 @@ public class UsuarioController {
             System.out.println("Voy a editar datos del usuario");
             UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
 
-//            usuarioDireccion = (UsuarioDireccion) usuarioDAOImplementation.GetById(IdUsuario).object;
+            //usuarioDireccion = (UsuarioDireccion) usuarioDAOImplementation.GetById(IdUsuario).object;
             usuarioDireccion = (UsuarioDireccion) usuarioDAOImplementation.GetByIdJPA(IdUsuario).object;
             usuarioDireccion.Direccion = new Direccion();   //Error de linea java.lang.NullPointerException: Cannot assign field "Direccion" because "usuarioDireccion" is null
             usuarioDireccion.Direccion.setIdDireccion(-1);
@@ -454,7 +454,8 @@ public class UsuarioController {
             usuarioDireccion.Direccion = new Direccion();
             usuarioDireccion.Direccion.setIdDireccion(IdDireccion);
 
-            usuarioDireccion.Direccion = (Direccion) direccionDAOImplementation.GetById(IdDireccion).object;
+            //usuarioDireccion.Direccion = (Direccion) direccionDAOImplementation.GetById(IdDireccion).object;
+            usuarioDireccion.Direccion = (Direccion) direccionDAOImplementation.GetByIdJPA(IdDireccion).object;
 
             model.addAttribute("usuarioDireccion", usuarioDireccion);
             model.addAttribute("paises", PaisDAOImplementation.GetAll().correct ? PaisDAOImplementation.GetAll().objects : null);
@@ -464,6 +465,7 @@ public class UsuarioController {
 
     @PostMapping("/GetAllDinamico")
     public String BusquedaDinamica(@ModelAttribute Usuario usuario, Model model) {
+        //Result result = usuarioDAOImplementation.GetAllDinamico(usuario);
         Result result = usuarioDAOImplementation.GetAllDinamico(usuario);
         Result resultRol = RolDAOImplementation.GetAll();
         Usuario usuarioBusqueda = new Usuario();
@@ -483,7 +485,8 @@ public class UsuarioController {
         usuario.setIdUsuario(IdUsuario);
         usuario.setStatus(Status);
 
-        Result result = usuarioDAOImplementation.UpdateStatus(usuario);
+        //Result result = usuarioDAOImplementation.UpdateStatus(usuario);
+        Result result = usuarioDAOImplementation.UpdateStatusJPA(usuario);
 
         return result.correct ? "OK" : "ERROR";
     }

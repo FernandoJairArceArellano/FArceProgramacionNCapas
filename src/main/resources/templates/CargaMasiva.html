@@ -8,41 +8,65 @@
 
 <body layout:fragment="body" class="bg-light">
     <!-- Contenedor centrado vertical y horizontalmente -->
-    <div class="d-flex justify-content-center align-items-center min-vh-100">
-
+    <div class="d-flex flex-column justify-content-center align-items-center min-vh-100">
         <div class="container-lg">
-            <div class="row justify-content-center g-4 mt-4">
-                <!-- card 1 formulario de carga -->
-                <div class="col-12 col-sm-10 col-md-6 col-lg-4">
-                    <div class="card text-bg-secondary shadow rounded-4 h-80">
-                        <div class="card-body d-flex flex-column gap-3 py-4">
-                            <button class="btn btn-primary" id="mostrarOpciones"> Mostrar opciones</button>
-                            <button class="btn btn-danger" id="borrarOpcciones"> Borrar registro</button>
-                        </div>
-                    </div>
-                </div>
+            <div class="row justify-content-center">
+                <div class="col-auto">
+                    <!-- Contenedor de TODOS los botones en fila -->
+                    <div
+                        class="card-body d-flex flex-row gap-4 py-4 justify-content-center align-items-center flex-wrap">
 
-                <!-- card 2 dinamico -->
-                <div class="col-12 col-sm-10 col-md-6 col-lg-4" id="btnscargamasiva" style="display: none;">
-                    <div class="card bg-primary text-white shadow rounded-4 mb-4 h-40">
-                        <div class="card-body d-flex align-items-center py-4">
-                            <button class="btn btn-primary w-100" id="mostrarFormulariotxt">
-                                <i class="bi bi-filetype-txt me-2" style="font-size: 1.5em;"></i> Carga Masiva TXT
+                        <!-- Botón mostrar opciones -->
+                        <div class="d-flex flex-column align-items-center">
+                            <button
+                                class="btn btn-primary rounded-circle d-flex justify-content-center align-items-center mb-2"
+                                id="mostrarOpciones" style="width: 70px; height: 70px;">
+                                <i class="bi bi-eye" style="font-size: 1.8rem;"></i>
                             </button>
+                            <small class="text-primary text-center">Mostrar opciones</small>
                         </div>
-                    </div>
-                    <div class="card bg-success text-white shadow rounded-4 h-40">
-                        <div class="card-body d-flex align-items-center py-4">
-                            <button class="btn btn-success w-100" id="mostrarFormularioexcel">
-                                <i class="bi bi-filetype-xml me-2" style="font-size: 1.5em;"></i> Carga Masiva Excel
+
+                        <!-- Botón borrar registro -->
+                        <div class="d-flex flex-column align-items-center">
+                            <button
+                                class="btn btn-danger rounded-circle d-flex justify-content-center align-items-center mb-2"
+                                id="borrarOpciones" style="width: 70px; height: 70px;">
+                                <i class="bi bi-trash" style="font-size: 1.8rem;"></i>
                             </button>
+                            <small class="text-danger text-center">Borrar registro</small>
                         </div>
+
+                        <!-- Botones Carga Masiva ocultos inicialmente -->
+                        <div id="btnscargamasiva"
+                            class="d-flex flex-row gap-4 justify-content-center align-items-center flex-wrap d-none">
+
+                            <!-- Botón Carga TXT -->
+                            <div class="d-flex flex-column align-items-center">
+                                <button
+                                    class="btn btn-primary rounded-circle d-flex justify-content-center align-items-center mb-2"
+                                    id="mostrarFormulariotxt" style="width: 70px; height: 70px;">
+                                    <i class="bi bi-filetype-txt" style="font-size: 1.8rem;"></i>
+                                </button>
+                                <small class="text-primary text-center">Carga Masiva TXT</small>
+                            </div>
+
+                            <!-- Botón Carga Excel -->
+                            <div class="d-flex flex-column align-items-center">
+                                <button
+                                    class="btn btn-success rounded-circle d-flex justify-content-center align-items-center mb-2"
+                                    id="mostrarFormularioexcel" style="width: 70px; height: 70px;">
+                                    <i class="bi bi-filetype-xlsx" style="font-size: 1.8rem;"></i>
+                                </button>
+                                <small class="text-success text-center">Carga Masiva Excel</small>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="container">
+        <div class="container-lg">
             <div class="row g-4 justify-content-center">
 
                 <!-- Formulario para TXT -->
@@ -89,7 +113,7 @@
         </div>
     </div>
 
-    <div class="container">
+    <div class="container-lg">
         <div class="row g-4 justify-content-center">
             <!-- Contenido de errores -->
             <div th:if="${listaErrores != null and !listaErrores.isEmpty()}">
@@ -120,6 +144,7 @@
             </div>
         </div>
     </div>
+
     <!-- Estilos para validaciones visuales -->
     <style>
         /* Estilo para input válido: borde verde y sombra azul */
@@ -164,6 +189,7 @@
             const $btncargar = $("#mostrarOpciones");
             const $btnborrar = $("#borrarOpciones");
             const $btnscargamasiva = $("#btnscargamasiva");
+            let opcionesVisibles = false;
 
             // Evento cuando el archivo cambia
             $input.on("change", function () {
@@ -213,12 +239,20 @@
 
             // Mostrar opciones
             $btncargar.on("click", function () {
-                $btnscargamasiva.show(500);
+                if (!opcionesVisibles) {
+                    $btnscargamasiva.removeClass('d-none').hide().fadeIn(300); // Quitamos 'd-none' y luego fadeIn
+                    opcionesVisibles = true;
+                }
             });
 
             // Borrar opciones
             $btnborrar.on("click", function () {
-                $btnscargamasiva.hide();
+                if (opcionesVisibles) {
+                    $btnscargamasiva.fadeOut(300, function () {
+                        $btnscargamasiva.addClass('d-none'); // Al terminar fadeOut, le ponemos 'd-none'
+                    });
+                    opcionesVisibles = false;
+                }
             });
 
             // Validación final antes del envío del formulario

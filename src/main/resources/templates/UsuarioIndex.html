@@ -181,7 +181,7 @@
                 $('.status-switch').on('change', function () {
                     const checkbox = $(this);
                     const IdUsuario = checkbox.data('id');
-                    const status = checkbox.is(':checked') ? 1 : 2;
+                    const status = checkbox.is(':checked') ? 1 : 0;
 
                     $.ajax({
                         url: '/Usuario/ActualizarStatus',
