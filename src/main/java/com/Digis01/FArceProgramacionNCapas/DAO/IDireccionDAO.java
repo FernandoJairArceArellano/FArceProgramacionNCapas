@@ -15,4 +15,6 @@ public interface IDireccionDAO {
     Result DireccionAddJPA(UsuarioDireccion usuarioDireccion);
     
     Result UpdateByIdJPA(UsuarioDireccion usuarioDireccion);
+    
+    Result DeleteDireccionJPA(int IdDireccion);
 }

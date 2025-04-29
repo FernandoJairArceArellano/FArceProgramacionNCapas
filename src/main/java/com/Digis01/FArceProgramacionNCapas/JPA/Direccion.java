@@ -7,7 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 
 @Entity
 public class Direccion {
@@ -16,16 +15,16 @@ public class Direccion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "iddireccion")
     private int IdDireccion;
-    
+
     @Column(name = "calle")
     private String Calle;
-    
-    @Column (name = "numerointerior")
+
+    @Column(name = "numerointerior")
     private String NumeroInterior;
-    
-    @Column (name = "numeroexterior")
+
+    @Column(name = "numeroexterior")
     private String NumeroExterior;
-    
+
     @JoinColumn(name = "idcolonia")
     @ManyToOne
     public Colonia Colonia; // Propiedad de navegacion
@@ -33,7 +32,7 @@ public class Direccion {
     @JoinColumn(name = "idusuario")
     @ManyToOne
     public Usuario Usuario;
-    
+
     public int getIdDireccion() {
         return IdDireccion;
     }
@@ -72,6 +71,14 @@ public class Direccion {
 
     public void setColonia(Colonia Colonia) {
         this.Colonia = Colonia;
+    }
+
+    public Usuario getUsuario() {
+        return Usuario;
+    }
+
+    public void setUsuario(Usuario Usuario) {
+        this.Usuario = Usuario;
     }
 
 }

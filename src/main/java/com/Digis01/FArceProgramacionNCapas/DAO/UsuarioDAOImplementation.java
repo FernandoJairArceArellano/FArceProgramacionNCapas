@@ -883,10 +883,8 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
                 usuarioDireccion.Usuario = user;
 
                 // Cargar de Direcciones
-                TypedQuery<com.Digis01.FArceProgramacionNCapas.JPA.Direccion> queryDireccion = entityManager.createQuery(
-                        "FROM Direccion d WHERE d.usuario.idUsuario = :IdUsuario",
-                        com.Digis01.FArceProgramacionNCapas.JPA.Direccion.class
-                );
+                TypedQuery<com.Digis01.FArceProgramacionNCapas.JPA.Direccion> queryDireccion
+                        = entityManager.createQuery("FROM Direccion d WHERE d.usuario.IdUsuario = :IdUsuario",com.Digis01.FArceProgramacionNCapas.JPA.Direccion.class);
                 queryDireccion.setParameter("IdUsuario", user.getIdUsuario());
 
                 List<com.Digis01.FArceProgramacionNCapas.JPA.Direccion> direccionesJPA = queryDireccion.getResultList();
@@ -934,19 +932,19 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
 
     @Transactional
     @Override
-    public Result DeleteJPA(int idUsuario) {
+    public Result DeleteJPA(int IdUsuario) {
         Result result = new Result();
 
         try {
             // Buscar el usuario por su ID
             com.Digis01.FArceProgramacionNCapas.JPA.Usuario usuario
-                    = entityManager.find(com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class, idUsuario);
+                    = entityManager.find(com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class, IdUsuario);
 
             if (usuario != null) {
                 // Buscar y eliminar direcciones asociadas al usuario
                 TypedQuery<com.Digis01.FArceProgramacionNCapas.JPA.Direccion> queryDirecciones = entityManager.createQuery(
                         "FROM Direccion WHERE Usuario.IdUsuario = :idUsuario", com.Digis01.FArceProgramacionNCapas.JPA.Direccion.class);
-                queryDirecciones.setParameter("idUsuario", idUsuario);
+                queryDirecciones.setParameter("idUsuario", IdUsuario);
                 List<com.Digis01.FArceProgramacionNCapas.JPA.Direccion> direcciones = queryDirecciones.getResultList();
 
                 for (com.Digis01.FArceProgramacionNCapas.JPA.Direccion direccion : direcciones) {

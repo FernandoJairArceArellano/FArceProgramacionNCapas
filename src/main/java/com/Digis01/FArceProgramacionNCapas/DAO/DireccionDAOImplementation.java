@@ -8,6 +8,7 @@ import com.Digis01.FArceProgramacionNCapas.ML.Pais;
 import com.Digis01.FArceProgramacionNCapas.ML.Result;
 import com.Digis01.FArceProgramacionNCapas.ML.UsuarioDireccion;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import java.sql.ResultSet;
 import java.sql.Types;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,12 +161,41 @@ public class DireccionDAOImplementation implements IDireccionDAO {
         return result;
     }
 
+    @Transactional
     @Override
     public Result DireccionAddJPA(UsuarioDireccion usuarioDireccion) {
         Result result = new Result();
 
         try {
+            // Buscar entidad Usuario existente
+            com.Digis01.FArceProgramacionNCapas.JPA.Usuario usuarioJPA
+                    = entityManager.find(com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class,usuarioDireccion.Usuario.getIdUsuario());
+            
+            if (usuarioJPA == null) {
+                result.errorMessage = ("Usuario no encontrado con ID: " + usuarioDireccion.Usuario.getIdUsuario());
+            }
 
+            // Buscar entidad Colonia
+            com.Digis01.FArceProgramacionNCapas.JPA.Colonia coloniaJPA
+                    = entityManager.find(com.Digis01.FArceProgramacionNCapas.JPA.Colonia.class,usuarioDireccion.Direccion.Colonia.getIdColonia());
+            
+            if (coloniaJPA == null) {
+                result.errorMessage = ("Colonia no encontrada con ID: " + usuarioDireccion.Direccion.Colonia.getIdColonia());
+            }
+
+            // Crear entidad Dirección
+            com.Digis01.FArceProgramacionNCapas.JPA.Direccion direccionJPA = new com.Digis01.FArceProgramacionNCapas.JPA.Direccion();
+            
+            direccionJPA.setCalle(usuarioDireccion.Direccion.getCalle());
+            direccionJPA.setNumeroInterior(usuarioDireccion.Direccion.getNumeroInterior());
+            direccionJPA.setNumeroExterior(usuarioDireccion.Direccion.getNumeroExterior());
+            direccionJPA.setColonia(coloniaJPA);
+            direccionJPA.setUsuario(usuarioJPA); // ASOCIA EL USUARIO!
+
+            // Persistir la dirección
+            entityManager.persist(direccionJPA);
+
+            result.correct = true;
         } catch (Exception ex) {
             result.correct = false;
             result.errorMessage = ex.getLocalizedMessage();
@@ -206,15 +236,87 @@ public class DireccionDAOImplementation implements IDireccionDAO {
         return result;
     }
 
+    @Transactional
     @Override
     public Result UpdateByIdJPA(UsuarioDireccion usuarioDireccion) {
         Result result = new Result();
 
         try {
+            // Buscar la dirección existente por IdDireccion
+            com.Digis01.FArceProgramacionNCapas.JPA.Direccion direccionJPA = entityManager.find(
+                    com.Digis01.FArceProgramacionNCapas.JPA.Direccion.class,
+                    usuarioDireccion.Direccion.getIdDireccion()
+            );
 
+            if (direccionJPA == null) {
+                result.correct = false;
+                result.errorMessage = "Dirección no encontrada con ID: " + usuarioDireccion.Direccion.getIdDireccion();
+                return result;
+            }
+
+            // Buscar el usuario existente
+            com.Digis01.FArceProgramacionNCapas.JPA.Usuario usuarioJPA = entityManager.find(
+                    com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class,
+                    usuarioDireccion.Usuario.getIdUsuario()
+            );
+
+            if (usuarioJPA == null) {
+                result.correct = false;
+                result.errorMessage = "Usuario no encontrado con ID: " + usuarioDireccion.Usuario.getIdUsuario();
+                return result;
+            }
+
+            // Buscar la colonia existente
+            com.Digis01.FArceProgramacionNCapas.JPA.Colonia coloniaJPA
+                    = entityManager.find(com.Digis01.FArceProgramacionNCapas.JPA.Colonia.class,usuarioDireccion.Direccion.Colonia.getIdColonia()
+            );
+
+            if (coloniaJPA == null) {
+                result.correct = false;
+                result.errorMessage = "Colonia no encontrada con ID: " + usuarioDireccion.Direccion.Colonia.getIdColonia();
+                return result;
+            }
+
+            // Ahora actualizar los campos de la dirección encontrada
+            direccionJPA.setCalle(usuarioDireccion.Direccion.getCalle());
+            direccionJPA.setNumeroInterior(usuarioDireccion.Direccion.getNumeroInterior());
+            direccionJPA.setNumeroExterior(usuarioDireccion.Direccion.getNumeroExterior());
+            direccionJPA.setColonia(coloniaJPA);
+            direccionJPA.setUsuario(usuarioJPA);
+
+            // No necesitas hacer merge explícitamente, Hibernate se encarga en transacciones.
+            // entityManager.merge(direccionJPA);
+            result.correct = true;
         } catch (Exception ex) {
             result.correct = false;
             result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+
+        return result;
+    }
+
+    @Transactional
+    @Override
+    public Result DeleteDireccionJPA(int IdDireccion) {
+        Result result = new Result();
+
+        try {
+            com.Digis01.FArceProgramacionNCapas.JPA.Direccion direccion
+                    = entityManager.find(com.Digis01.FArceProgramacionNCapas.JPA.Direccion.class, IdDireccion);
+
+            if (direccion != null) {
+                entityManager.remove(direccion);
+                result.correct = true;
+                result.errorMessage = "Dirección eliminada correctamente.";
+            } else {
+                result.correct = false;
+                result.errorMessage = "Dirección no encontrada con el ID: " + IdDireccion;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            result.correct = false;
+            result.errorMessage = "Error al eliminar la dirección.";
             result.ex = ex;
         }
 

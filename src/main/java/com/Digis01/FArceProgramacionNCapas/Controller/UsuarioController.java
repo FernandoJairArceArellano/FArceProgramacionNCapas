@@ -123,7 +123,22 @@ public class UsuarioController {
             return "redirect:/Usuario";
         } else {
             model.addAttribute("error", result.errorMessage);
-            return "error"; // O tu vista personalizada de error
+            return "error";
+        }
+    }
+
+    @GetMapping("/DeleteDireccion/{IdDireccion}")
+    public String deleteDireccionById(@PathVariable int IdDireccion, Model model) {
+        System.out.println("Voy a eliminar una direccion");
+
+        Result result = direccionDAOImplementation.DeleteDireccionJPA(IdDireccion);
+
+        if (result.correct) {
+            // Redirigir a usuario detail si todo sale bien
+            return "redirect:/Usuario";
+        } else {
+            model.addAttribute("error", result.errorMessage);
+            return "error";
         }
     }
 
@@ -466,7 +481,7 @@ public class UsuarioController {
     @PostMapping("/GetAllDinamico")
     public String BusquedaDinamica(@ModelAttribute Usuario usuario, Model model) {
         //Result result = usuarioDAOImplementation.GetAllDinamico(usuario);
-        Result result = usuarioDAOImplementation.GetAllDinamico(usuario);
+        Result result = usuarioDAOImplementation.GetAllDinamicoJPA(usuario);
         Result resultRol = RolDAOImplementation.GetAll();
         Usuario usuarioBusqueda = new Usuario();
         usuarioBusqueda.Rol = new Rol();
@@ -521,10 +536,12 @@ public class UsuarioController {
                 usuarioDAOImplementation.UpdateJPA(usuarioDireccion.Usuario);
             } else if (usuarioDireccion.Direccion.getIdDireccion() == 0) { // Agregar direccion
                 System.out.println("Estoy agregando direccion");
-                direccionDAOImplementation.DireccionAdd(usuarioDireccion);
+                //direccionDAOImplementation.DireccionAdd(usuarioDireccion);
+                direccionDAOImplementation.DireccionAddJPA(usuarioDireccion);
             } else { // Editar direccion
                 System.out.println("Estoy actualizando direccion");
-                direccionDAOImplementation.UpdateById(usuarioDireccion);
+                //direccionDAOImplementation.UpdateById(usuarioDireccion);
+                direccionDAOImplementation.UpdateByIdJPA(usuarioDireccion);
             }
         }
         // Si no hay errores en la BD guardar los datos
