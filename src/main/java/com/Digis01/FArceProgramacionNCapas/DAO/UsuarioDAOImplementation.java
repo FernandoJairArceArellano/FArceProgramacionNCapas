@@ -811,26 +811,32 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
 
             // Validacion de datos que se recibe segun los filtros
             if (usuario.getNombre() != null && !usuario.getNombre().isEmpty()) {
-                jpql += " AND u.nombre LIKE :nombre";
+                jpql += " AND u.Nombre LIKE :nombre";
             }
 
             if (usuario.getApellidoPaterno() != null && !usuario.getApellidoPaterno().isEmpty()) {
-                jpql += " AND u.apellidoPaterno LIKE :apellidoPaterno";
+                jpql += " AND u.ApellidoPaterno LIKE :apellidoPaterno";
             }
 
             if (usuario.getApellidoMaterno() != null && !usuario.getApellidoMaterno().isEmpty()) {
-                jpql += " AND u.apellidoMaterno LIKE :apellidoMaterno";
+                jpql += " AND u.ApellidoMaterno LIKE :apellidoMaterno";
             }
 
             if (usuario.getRol() != null && usuario.getRol().getIdRol() > 0) {
-                jpql += " AND u.rol.idRol = :idRol";
+                jpql += " AND u.Rol.idRol = :idrol";
             }
 
+            // Filtro de status
+            if (usuario.getStatus() == 1){
+                jpql += " AND u.Status = 0";
+            }
+            
             // Ordenar los resultados
-            jpql += " ORDER BY u.idUsuario";
+            jpql += " ORDER BY u.IdUsuario";
 
             // Creaccion de queery con armado
-            TypedQuery<com.Digis01.FArceProgramacionNCapas.JPA.Usuario> query = entityManager.createQuery(jpql, com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class);
+            TypedQuery<com.Digis01.FArceProgramacionNCapas.JPA.Usuario> query = 
+                    entityManager.createQuery(jpql, com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class);
 
             // Asignar parámetros
             if (usuario.getNombre() != null && !usuario.getNombre().isEmpty()) {
@@ -855,7 +861,7 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
             // Procesar datos de cada usuario
             for (com.Digis01.FArceProgramacionNCapas.JPA.Usuario usuarioJPA : usuariosJPA) {
                 UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
-                Usuario user = new Usuario(); // Instancia para no sobrescribir
+                Usuario user = new Usuario();
 
                 // Mapear datos del usuario
                 user.setIdUsuario(usuarioJPA.getIdUsuario());
