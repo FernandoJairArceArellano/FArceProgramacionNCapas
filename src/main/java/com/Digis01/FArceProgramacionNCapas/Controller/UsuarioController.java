@@ -77,12 +77,14 @@ public class UsuarioController {
 
         Result result = usuarioDAOImplementation.GetAll();
         Result resultJPA = usuarioDAOImplementation.GetAllJPA();
-        Result resultRol = RolDAOImplementation.GetAll();
+        //Result resultRol = RolDAOImplementation.GetAll();
+        Result resultRol = RolDAOImplementation.GetAllJPA();
         Usuario usuarioBusqueda = new Usuario();
         usuarioBusqueda.Rol = new Rol();
 
         model.addAttribute("usuarioBusqueda", usuarioBusqueda);
-        model.addAttribute("roles", resultRol.object);
+        //model.addAttribute("roles", resultRol.object);
+        model.addAttribute("roles", resultRol.objects);
         model.addAttribute("listaUsuarios", resultJPA.objects);
 
         return "UsuarioIndex";
@@ -101,9 +103,11 @@ public class UsuarioController {
             usuarioDireccion.Direccion.Colonia.Municipio.Estado = new Estado();
             usuarioDireccion.Direccion.Colonia.Municipio.Estado.Pais = new Pais();
 
-            model.addAttribute("roles", RolDAOImplementation.GetAll().object);
+            //model.addAttribute("roles", RolDAOImplementation.GetAll().object);
+            model.addAttribute("roles", RolDAOImplementation.GetAllJPA().objects);
             model.addAttribute("usuarioDireccion", usuarioDireccion);
-            model.addAttribute("paises", PaisDAOImplementation.GetAll().correct ? PaisDAOImplementation.GetAll().objects : null);
+            //model.addAttribute("paises", PaisDAOImplementation.GetAll().correct ? PaisDAOImplementation.GetAll().objects : null);
+            model.addAttribute("paises", PaisDAOImplementation.GetAllJPA().correct ? PaisDAOImplementation.GetAllJPA().objects : null);
             return "UsuarioForm";
         } else { // Edicion
             System.out.println("Voy a editar");
@@ -360,12 +364,6 @@ public class UsuarioController {
                 if (fNacimiento == null) {
                     listaErrores.add(new ResultFile(fila, "", "La fecha de nacimiento es obligatoria"));
                 }
-//                else {
-//                    Date hoy = new Date();
-//                    if (fNacimiento.after(hoy)) {
-//                        listaErrores.add(new ResultFile(fila, fNacimiento.toString(), "La fecha de nacimiento no puede ser futura"));
-//                    }
-//                }
 
                 if (nCelular == null || nCelular.trim().isEmpty()) {
                     listaErrores.add(new ResultFile(fila, nCelular, "El número de celular es obligatorio"));
@@ -376,9 +374,6 @@ public class UsuarioController {
                 if (curp == null || curp.trim().isEmpty()) {
                     listaErrores.add(new ResultFile(fila, curp, "El CURP es obligatorio"));
                 }
-//                else if (!curp.matches("^[A-Z]{4}\\d{6}[HM][A-Z]{5}[A-Z0-9]{2}$")) {
-//                    listaErrores.add(new ResultFile(fila, curp, "El CURP no tiene un formato válido"));
-//                }
 
                 if (userName == null || userName.trim().isEmpty()) {
                     listaErrores.add(new ResultFile(fila, userName, "El nombre de usuario es obligatorio"));
@@ -387,19 +382,13 @@ public class UsuarioController {
                 if (email == null || email.trim().isEmpty()) {
                     listaErrores.add(new ResultFile(fila, email, "El correo electrónico es obligatorio"));
                 }
-//                else if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-//                    listaErrores.add(new ResultFile(fila, email, "El correo electrónico no tiene un formato válido"));
-//                }
 
                 if (password == null || password.trim().isEmpty()) {
                     listaErrores.add(new ResultFile(fila, password, "La contraseña es obligatoria"));
                 }
-//                else if (password.length() < 6) {
-//                    listaErrores.add(new ResultFile(fila, password, "La contraseña debe tener al menos 6 caracteres"));
-//                }
 
-                if (sexo != 'H' && sexo != 'M') {
-                    listaErrores.add(new ResultFile(fila, String.valueOf(sexo), "El sexo debe ser 'H' o 'M'"));
+                if (sexo != 'M' && sexo != 'F') {
+                    listaErrores.add(new ResultFile(fila, String.valueOf(sexo), "El sexo debe ser 'M' o 'F'"));
                 }
 
                 if (telefono != null && !telefono.trim().isEmpty() && !telefono.matches("^\\d{10}$")) {
@@ -413,12 +402,7 @@ public class UsuarioController {
                 if (status != 0 && status != 1) {
                     listaErrores.add(new ResultFile(fila, String.valueOf(status), "El status debe ser 0 (inactivo) o 1 (activo)"));
                 }
-                // Validación opcional para la imagen
-//                if (imagen != null && !imagen.trim().isEmpty()) {
-//                    if (!imagen.matches(".*\\.(jpg|jpeg|png|gif)$")) {
-//                        listaErrores.add(new ResultFile(fila, imagen, "El formato de imagen no es válido"));
-//                    }
-//                }
+                
                 fila++;
             }
         }
@@ -434,7 +418,8 @@ public class UsuarioController {
 
         for (UsuarioDireccion usuarioDireccion : listaUsuarios) {
             System.out.println("Estoy agregando un nuevo usuario y direccion");
-            usuarioDAOImplementation.Add(usuarioDireccion);
+            //usuarioDAOImplementation.Add(usuarioDireccion);
+            usuarioDAOImplementation.AddJPA(usuarioDireccion);
         }
 
         return "CargaMasiva";
@@ -452,7 +437,8 @@ public class UsuarioController {
             usuarioDireccion.Direccion.setIdDireccion(-1);
             model.addAttribute("usuarioDireccion", usuarioDireccion);
 
-            model.addAttribute("roles", RolDAOImplementation.GetAll().object);
+            //model.addAttribute("roles", RolDAOImplementation.GetAll().object);
+            model.addAttribute("roles", RolDAOImplementation.GetAllJPA().objects);
         } else if (IdDireccion == 0) {//Agregar Direccion
             System.out.println("Voy a agregar una direccion");
             UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
@@ -461,7 +447,8 @@ public class UsuarioController {
             usuarioDireccion.Direccion = new Direccion();
             usuarioDireccion.Direccion.setIdDireccion(0);
             model.addAttribute("usuarioDireccion", usuarioDireccion);
-            model.addAttribute("paises", PaisDAOImplementation.GetAll().correct ? PaisDAOImplementation.GetAll().objects : null);
+            //model.addAttribute("paises", PaisDAOImplementation.GetAll().correct ? PaisDAOImplementation.GetAll().objects : null);
+            model.addAttribute("paises", PaisDAOImplementation.GetAllJPA().correct ? PaisDAOImplementation.GetAllJPA().objects : null);
         } else { //Editar direccion
             UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
             usuarioDireccion.Usuario = new Usuario();
@@ -473,7 +460,8 @@ public class UsuarioController {
             usuarioDireccion.Direccion = (Direccion) direccionDAOImplementation.GetByIdJPA(IdDireccion).object;
 
             model.addAttribute("usuarioDireccion", usuarioDireccion);
-            model.addAttribute("paises", PaisDAOImplementation.GetAll().correct ? PaisDAOImplementation.GetAll().objects : null);
+            //model.addAttribute("paises", PaisDAOImplementation.GetAll().correct ? PaisDAOImplementation.GetAll().objects : null);
+            model.addAttribute("paises", PaisDAOImplementation.GetAllJPA().correct ? PaisDAOImplementation.GetAllJPA().objects : null);
         }
         return "UsuarioForm";
     }
@@ -482,8 +470,10 @@ public class UsuarioController {
     public String BusquedaDinamica(@ModelAttribute Usuario usuario, Model model) {
         //Result result = usuarioDAOImplementation.GetAllDinamico(usuario);
         Result result = usuarioDAOImplementation.GetAllDinamicoJPA(usuario);
-        Result resultRol = RolDAOImplementation.GetAll();
+        //Result resultRol = RolDAOImplementation.GetAll();
+        Result resultRol = RolDAOImplementation.GetAllJPA();
         Usuario usuarioBusqueda = new Usuario();
+        usuarioBusqueda.setStatus(-1);
         usuarioBusqueda.Rol = new Rol();
 
         model.addAttribute("roles", resultRol.object);
@@ -553,7 +543,8 @@ public class UsuarioController {
     @GetMapping("EstadoByIdPais/{IdPais}")
     @ResponseBody
     public Result EstadoByIdPais(@PathVariable int IdPais) {
-        Result result = estadoDAOImplementation.EstadoByIdPais(IdPais);
+        //Result result = estadoDAOImplementation.EstadoByIdPais(IdPais);
+        Result result = estadoDAOImplementation.EstadoByIdPaisJPA(IdPais);
 
         return result;
     }
@@ -561,7 +552,8 @@ public class UsuarioController {
     @GetMapping("MunicipioByIdEstado/{IdEstado}")
     @ResponseBody
     public Result MunicipioByIdEstado(@PathVariable int IdEstado) {
-        Result result = municipioDAOImplementation.MunicipioByIdEstado(IdEstado);
+        //Result result = municipioDAOImplementation.MunicipioByIdEstado(IdEstado);
+        Result result = municipioDAOImplementation.MunicipioByIdEstadoJPA(IdEstado);
 
         return result;
     }
@@ -569,7 +561,8 @@ public class UsuarioController {
     @GetMapping("ColoniaByIdMunicipio/{IdMunicipio}")
     @ResponseBody
     public Result ColoniaByIdMunicipio(@PathVariable int IdMunicipio) {
-        Result result = coloniaDAOImplementation.ColoniaByIdMunicipio(IdMunicipio);
+        //Result result = coloniaDAOImplementation.ColoniaByIdMunicipio(IdMunicipio);
+        Result result = coloniaDAOImplementation.ColoniaByIdMunicipioJPA(IdMunicipio);
 
         return result;
     }

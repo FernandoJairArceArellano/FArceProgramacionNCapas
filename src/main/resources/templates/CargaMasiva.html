@@ -36,7 +36,7 @@
                             <small class="text-danger text-center">Borrar registro</small>
                         </div>
 
-                        <!-- Botones Carga Masiva ocultos inicialmente -->
+                        <!-- Botones Carga Masiva -->
                         <div id="btnscargamasiva"
                             class="d-flex flex-row gap-4 justify-content-center align-items-center flex-wrap d-none">
 
@@ -60,7 +60,6 @@
                                 <small class="text-success text-center">Carga Masiva Excel</small>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -70,15 +69,15 @@
             <div class="row g-4 justify-content-center">
 
                 <!-- Formulario para TXT -->
-                <div class="col-12 col-md-6 col-lg-5">
+                <div class="col-12 col-md-6 col-lg-5 d-none" id="carga-masiva-form">
                     <div class="card shadow rounded-4">
                         <div class="card-body">
                             <h5 class="card-title">Carga de archivo TXT</h5>
                             <p class="card-text">Seleccione un archivo con el formato correcto.</p>
 
                             <!-- Botón para el formato de archivo txt -->
-                            <a href="#" class="btn btn-primary mb-3" id="btn-descargar">Formato TXT</a>
-                            <a href="#" class="btn btn-success mb-3" id="btn-excel">Formato Excel</a>
+                            <a class="btn btn-primary mb-3" id="info-txt">Formato TXT</a>
+                            <a class="btn btn-success mb-3" id="info-excel">Formato Excel</a>
 
                             <!-- Formulario con input tipo archivo -->
                             <form th:action="@{/Usuario/CargaMasiva}" method="post" enctype="multipart/form-data"
@@ -147,10 +146,20 @@
 
     <!-- Estilos para validaciones visuales -->
     <style>
-        /* Estilo para input válido: borde verde y sombra azul */
-        .valido {
-            border: 2px solid #1eff00 !important;
-            box-shadow: 0 0 5px lightblue;
+        /* Para input válido de TXT */
+        .valido-txt {
+            border: 2px solid blue !important;
+            box-shadow: 0 0 5px blue;
+            background-color: #e0f0ff;
+            /* azul claro opcional */
+        }
+
+        /* Para input válido de Excel */
+        .valido-excel {
+            border: 2px solid green !important;
+            box-shadow: 0 0 5px green;
+            background-color: #e6ffe6;
+            /* verde claro opcional */
         }
 
         /* Estilo para botón de descarga si el archivo es válido */
@@ -171,6 +180,10 @@
             color: green;
         }
 
+        #archivo-msg.azul {
+            color: blue;
+        }
+
         #archivo-msg.invalid {
             color: red;
         }
@@ -181,14 +194,20 @@
         $(document).ready(function () {
             // Selección de elementos
             const $input = $("#archivo-input");
+            const $cargaMasiva = $("#carga-masiva-form");
+            const $infotxt = $("#info-txt");
+            const $infoexcel = $("#info-excel");
             const $form = $("#form-carga");
             const $btnEnviar = $("#btn-enviar");
-            const $btnDescargar = $("#btn-descargar");
-            const $btnexcel = $("#btn-excel");
             const $msg = $("#archivo-msg");
             const $btncargar = $("#mostrarOpciones");
             const $btnborrar = $("#borrarOpciones");
+            const $mostrarFormulariotxt = $("#mostrarFormulariotxt");
+            const $mostrarFormularioexcel = $("#mostrarFormularioexcel");
+
             const $btnscargamasiva = $("#btnscargamasiva");
+            let tipoCargaSeleccionado = ""; // Puede ser 'txt' o 'excel'
+            let formMasivoVisible = false;
             let opcionesVisibles = false;
 
             // Evento cuando el archivo cambia
@@ -204,32 +223,44 @@
 
                 resetEstilos(); // Siempre resetear antes
 
-                if (extension === "txt") {
-                    $input.addClass("valido");
-                    $btnDescargar.addClass("btn-valido").show();
-                    $btnexcel.hide();
-                    $btnEnviar.prop("disabled", false).addClass("btn-valido");
-                    $msg.text("✅ Archivo .txt válido").removeClass("invalid").addClass("valid");
-                } else if (extension === "xlsx") {
-                    $input.addClass("valido");
-                    $btnexcel.addClass("btn-valido-excel").show();
-                    $btnDescargar.hide();
-                    $btnEnviar.prop("disabled", false).addClass("btn-valido-excel");
-                    $msg.text("✅ Archivo .xlsx válido").removeClass("invalid").addClass("valid");
+                if (
+                    (tipoCargaSeleccionado === "txt" && extension === "txt") ||
+                    (tipoCargaSeleccionado === "excel" && extension === "xlsx")
+                ) {
+                    $input.removeClass("valido valido-txt valido-excel");
+
+                    if (tipoCargaSeleccionado === "txt") {
+                        $input.addClass("valido-txt");
+                        $infotxt.addClass("btn-valido").show();
+                        $infoexcel.hide();
+                        $msg.text("✅ Archivo .txt válido")
+                            .removeClass("invalid valid azul")
+                            .addClass("valid azul");
+                    } else {
+                        $input.addClass("valido-excel");
+                        $infoexcel.addClass("btn-valido-excel").show();
+                        $infotxt.hide();
+                        $msg.text("✅ Archivo .xlsx válido");
+                    }
+
+                    $btnEnviar.prop("disabled", false)
+                        .removeClass("btn-valido btn-valido-excel")
+                        .addClass(tipoCargaSeleccionado === "txt" ? "btn-valido" : "btn-valido-excel");
+                    $msg.removeClass("invalid").addClass("valid");
                 } else {
-                    alert("Solo se permiten archivos con extensión .txt o .xlsx");
+                    alert(`Por favor seleccione un archivo .${tipoCargaSeleccionado}`);
                     limpiarInput();
-                    $msg.text("❌ Archivo no válido").removeClass("valid").addClass("invalid");
+                    $msg.text(`❌ Solo se permite archivo .${tipoCargaSeleccionado}`).removeClass("valid").addClass("invalid");
                 }
             });
 
             // Función para resetear estilos y mensajes
             function resetEstilos() {
-                $input.removeClass("valido");
-                $btnDescargar.removeClass("btn-valido").hide();
-                $btnexcel.removeClass("btn-valido-excel").hide();
+                $input.removeClass("valido valido-txt valido-excel");
+                $infotxt.removeClass("btn-valido").hide();
+                $infoexcel.removeClass("btn-valido-excel").hide();
                 $btnEnviar.removeClass("btn-valido btn-valido-excel").prop("disabled", true);
-                $msg.text("").removeClass("valid invalid");
+                $msg.text("").removeClass("valid invalid azul");
             }
 
             // Función para limpiar el input file
@@ -240,7 +271,7 @@
             // Mostrar opciones
             $btncargar.on("click", function () {
                 if (!opcionesVisibles) {
-                    $btnscargamasiva.removeClass('d-none').hide().fadeIn(300); // Quitamos 'd-none' y luego fadeIn
+                    $btnscargamasiva.removeClass('d-none').hide().fadeIn(300);
                     opcionesVisibles = true;
                 }
             });
@@ -249,10 +280,56 @@
             $btnborrar.on("click", function () {
                 if (opcionesVisibles) {
                     $btnscargamasiva.fadeOut(300, function () {
-                        $btnscargamasiva.addClass('d-none'); // Al terminar fadeOut, le ponemos 'd-none'
+                        $btnscargamasiva.addClass('d-none');
                     });
+                    $cargaMasiva.fadeOut(300, function () {
+                        $cargaMasiva.addClass('d-none')
+                    });
+
+                    limpiarInput();
+                    resetEstilos();
+                    tipoCargaSeleccionado = "";
+                    formMasivoVisible = false;
+                    $msg.text("Formulario reiniciado");
                     opcionesVisibles = false;
                 }
+            });
+
+            // Botón para mostrar formulario TXT
+            $mostrarFormulariotxt.on("click", function () {
+                tipoCargaSeleccionado = "txt";
+                formMasivoVisible = true;
+                $cargaMasiva.removeClass('d-none').hide().fadeIn(300);
+
+                // Actualizar título
+                $cargaMasiva.find(".card-title").text("Carga de archivo TXT");
+
+                // Mostrar botón de formato correspondiente
+                $infotxt.show().addClass("btn-valido");
+                $infoexcel.hide().removeClass("btn-valido-excel");
+
+                // Resetear input y mensajes
+                limpiarInput();
+                resetEstilos();
+            });
+
+            // Botón para mostrar formulario Excel
+            $mostrarFormularioexcel.on("click", function () {
+                tipoCargaSeleccionado = "excel";
+                formMasivoVisible = true;
+                $cargaMasiva.removeClass('d-none').hide().fadeIn(300);
+
+                // Actualizar título
+                $cargaMasiva.find(".card-title").text("Carga de archivo Excel");
+
+                // Mostrar botón de formato correspondiente
+                $infoexcel.show().addClass("btn-valido-excel");
+                $infotxt.hide().removeClass("btn-valido");
+
+                // Resetear input y mensajes
+                limpiarInput();
+                resetEstilos();
+                $msg.text("Seleccione un archivo .xlsx");
             });
 
             // Validación final antes del envío del formulario
@@ -260,12 +337,15 @@
                 const archivo = $input[0].files[0];
                 const extension = archivo ? archivo.name.split('.').pop().toLowerCase() : "";
 
-                if (extension !== "txt" && extension !== "xlsx") {
-                    alert("Archivo inválido. Solo se permiten .txt o .xlsx.");
+                if (
+                    (tipoCargaSeleccionado === "txt" && extension !== "txt") ||
+                    (tipoCargaSeleccionado === "excel" && extension !== "xlsx")
+                ) {
+                    alert(`Archivo inválido. Debe ser un archivo .${tipoCargaSeleccionado}`);
                     e.preventDefault();
                     resetEstilos();
                     limpiarInput();
-                    $msg.text("❌ Archivo no válido").removeClass("valid").addClass("invalid");
+                    $msg.text(`❌ Archivo no válido. Solo se permite .${tipoCargaSeleccionado}`).removeClass("valid").addClass("invalid");
                 }
             });
         });

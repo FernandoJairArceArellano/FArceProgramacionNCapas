@@ -1,7 +1,7 @@
 package com.Digis01.FArceProgramacionNCapas.RestController;
 
-import com.Digis01.FArceProgramacionNCapas.ML.OperacionRequest;
-import com.Digis01.FArceProgramacionNCapas.ML.Operacion;
+import com.Digis01.FArceProgramacionNCapas.JPA.OperacionRequest;
+import com.Digis01.FArceProgramacionNCapas.JPA.Operacion;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

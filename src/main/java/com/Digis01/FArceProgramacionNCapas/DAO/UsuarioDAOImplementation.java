@@ -289,6 +289,7 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
             usuarioJPA.setSexo(usuarioDireccion.Usuario.getSexo());
             usuarioJPA.setTelefono(usuarioDireccion.Usuario.getTelefono());
             usuarioJPA.setImagen(usuarioDireccion.Usuario.getImagen());
+            usuarioJPA.setStatus(usuarioDireccion.Usuario.getStatus());
 
             entityManager.persist(usuarioJPA);
 
@@ -823,20 +824,24 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
             }
 
             if (usuario.getRol() != null && usuario.getRol().getIdRol() > 0) {
-                jpql += " AND u.Rol.idRol = :idrol";
+                jpql += " AND u.Rol.IdRol = :idRol";
             }
 
             // Filtro de status
-            if (usuario.getStatus() == 1){
-                jpql += " AND u.Status = 0";
+            if (usuario.getStatus() >= 0) {
+                if (usuario.getStatus() == 0) {
+                    jpql += " AND u.Status = 1"; // Mostrar solo activos (Status=1 en BD)
+                } else if (usuario.getStatus() == 1) {
+                    jpql += " AND u.Status = 0"; // Mostrar dados de baja (Status=0 en BD)
+                }
             }
-            
+
             // Ordenar los resultados
             jpql += " ORDER BY u.IdUsuario";
 
             // Creaccion de queery con armado
-            TypedQuery<com.Digis01.FArceProgramacionNCapas.JPA.Usuario> query = 
-                    entityManager.createQuery(jpql, com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class);
+            TypedQuery<com.Digis01.FArceProgramacionNCapas.JPA.Usuario> query
+                    = entityManager.createQuery(jpql, com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class);
 
             // Asignar parámetros
             if (usuario.getNombre() != null && !usuario.getNombre().isEmpty()) {
@@ -890,7 +895,7 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
 
                 // Cargar de Direcciones
                 TypedQuery<com.Digis01.FArceProgramacionNCapas.JPA.Direccion> queryDireccion
-                        = entityManager.createQuery("FROM Direccion d WHERE d.usuario.IdUsuario = :IdUsuario",com.Digis01.FArceProgramacionNCapas.JPA.Direccion.class);
+                        = entityManager.createQuery("FROM Direccion d WHERE d.Usuario.IdUsuario = :IdUsuario", com.Digis01.FArceProgramacionNCapas.JPA.Direccion.class);
                 queryDireccion.setParameter("IdUsuario", user.getIdUsuario());
 
                 List<com.Digis01.FArceProgramacionNCapas.JPA.Direccion> direccionesJPA = queryDireccion.getResultList();

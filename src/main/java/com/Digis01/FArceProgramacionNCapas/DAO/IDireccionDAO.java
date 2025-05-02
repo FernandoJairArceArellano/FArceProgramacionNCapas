@@ -4,12 +4,14 @@ import com.Digis01.FArceProgramacionNCapas.ML.Result;
 import com.Digis01.FArceProgramacionNCapas.ML.UsuarioDireccion;
 
 public interface IDireccionDAO {
+    // JdbcTemplate
     Result GetById(int IdDireccion);
     
     Result DireccionAdd(UsuarioDireccion usuarioDireccion);
     
     Result UpdateById(UsuarioDireccion usuarioDireccion);
     
+    // EntityManager
     Result GetByIdJPA(int IdDireccion);
     
     Result DireccionAddJPA(UsuarioDireccion usuarioDireccion);
