@@ -8,6 +8,14 @@
 <body layout:fragment="body">
 
     <div class="container">
+
+        <!-- Retroceder -->
+        <div class="col-12 mb-3">
+            <button onclick="window.history.back()" class="btn btn-outline-dark">
+                <i class="bi bi-arrow-left"></i> Volver
+            </button>
+        </div>
+        
         <div class="form-container">
             <h3 class="text-center mb-4">Agregar Usuario</h3>
             <form th:action="@{/Usuario/Form}" method="post" th:object="${usuarioDireccion}"
@@ -297,7 +305,7 @@
         }
 
         function validarRol(event, elemento) {
-
+            // Pendiente
         }
 
         function validarSexo(input) {

@@ -71,8 +71,8 @@ public class UsuarioController {
 
     @Autowired
     private DireccionDAOImplementation direccionDAOImplementation;
-
-    @GetMapping
+    
+    @GetMapping()
     public String Index(Model model) {
 
         Result result = usuarioDAOImplementation.GetAll();

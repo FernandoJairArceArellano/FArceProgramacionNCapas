@@ -17,21 +17,34 @@
 <!-- Encabezado -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
+        <!-- Marca -->
         <a class="navbar-brand" th:href="@{/Usuario}">Risosu IT</a>
+
+        <!-- Botón hamburguesa -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+        <!-- Contenido colapsable -->
+        <div class="collapse navbar-collapse order-1 order-lg-0" id="navbarNav">
+            <ul class="navbar-nav me-auto ms-auto">
+                <li class="nav-item"><a class="nav-link" th:href="@{/Usuario}">Inicio</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/Usuario/Form/0}">Agregar usuario</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/Usuario/CargaMasiva}">Carga Masiva</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Navbar</a></li>
             </ul>
         </div>
+
+        <!-- Botón de cerrar sesion -->
+        <div class="d-flex align-items-center order-0 order-lg-1 ms-lg-3 mt-2 mt-lg-0">
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button type="submit" class="btn btn-danger"><i class="bi bi-box-arrow-right"></i></button>
+            </form>
+        </div>
     </div>
 </nav>
+
 
 <br>
 

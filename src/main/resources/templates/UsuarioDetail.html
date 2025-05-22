@@ -5,6 +5,15 @@
 <body layout:fragment="body">
     <div class="container mt-5">
         <div class="row">
+            
+            <!-- Retroceder -->
+            <div class="col-12 mb-3">
+                <button onclick="window.history.back()" class="btn btn-outline-dark">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </button>
+            </div>
+            
+            <!-- COntenido principal -->
             <div class="col-md-4">
                 <div class="card">
                     <img style="max-height: 250px; object-fit: contain; margin-top: 20px;" class="card-img-top"
@@ -22,7 +31,8 @@
                         <p class="card-text" th:text="|Email: ${usuarioDirecciones.Usuario.Email}|"></p>
                         <!-- Editar Usuario -->
                         <a class="btn btn-warning btn-sm"
-                            th:href="@{/Usuario/formEditable(IdUsuario=${usuarioDirecciones.Usuario.IdUsuario})}">Editar datos</a>
+                            th:href="@{/Usuario/formEditable(IdUsuario=${usuarioDirecciones.Usuario.IdUsuario})}">Editar
+                            datos</a>
                     </div>
                 </div>
             </div>
@@ -31,7 +41,8 @@
                     <div class="card-body">
                         <h5 class="card-title">Direcciones Asignadas</h5>
                         <a class="btn btn-secondary mt-2 col-12"
-                            th:href="@{/Usuario/formEditable?IdUsuario=}+${usuarioDirecciones.Usuario.IdUsuario}+'&IdDireccion=0'">Agregar Dirección</a>
+                            th:href="@{/Usuario/formEditable?IdUsuario=}+${usuarioDirecciones.Usuario.IdUsuario}+'&IdDireccion=0'">Agregar
+                            Dirección</a>
 
                         <br /><br />
 
