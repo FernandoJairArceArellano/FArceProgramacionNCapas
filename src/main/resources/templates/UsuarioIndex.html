@@ -9,7 +9,14 @@
 
     <!-- Contenido Principal -->
     <div class="container table-container">
-        <h4>Hola, Bienvenido <span th:text="${nombre}"></span></h4>
+        <h4>Hola, Bienvenido <span th:text="${permisos}"></span></h4>
+
+        <div th:if="${alertMessage}" th:class="'alert alert-' + ${alertType} + ' alert-dismissible fade show'"
+            role="alert">
+            <span th:text="${alertMessage}">Mensaje</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
 
         <div class="container">
             <!-- Botón para agregar usuario -->
@@ -67,7 +74,7 @@
             <table class="table table-striped table-hover">
                 <thead class="table-dark">
                     <tr>
-                        <th style="min-width: 50px;">IdUsuario</th>
+                        <!-- <th style="min-width: 50px;">IdUsuario</th> -->
                         <th style="min-width: 100px;">Imagen</th>
                         <th style="min-width: 150px;">Nombre</th>
                         <th style="min-width: 100px;">Username</th>
@@ -79,9 +86,9 @@
                 </thead>
                 <tbody>
                     <tr th:each="usuarioDirecciones : ${listaUsuarios}">
-                        <td class="align-middle" data-label="IdUsuario">
+                        <!-- <td class="align-middle" data-label="IdUsuario">
                             <span th:text="${usuarioDirecciones.Usuario.IdUsuario}"></span>
-                        </td>
+                        </td> -->
                         <td class="align-middle" data-label="Imagen">
                             <img style="max-width: 75px"
                                 th:src="${usuarioDirecciones.Usuario.Imagen != null} ? 'data:image/png;base64,' + ${usuarioDirecciones.Usuario.Imagen} :'https://static-00.iconduck.com/assets.00/profile-default-icon-2048x2045-u3j7s5nj.png'" />
@@ -102,8 +109,10 @@
                                     th:text="${usuarioDirecciones.Usuario.Status == 1 ? 'Activo' : 'Inactivo'}"></label>
                             </div>
                         </td>
-                        <td class="align-middle" data-label="Contacto"
-                            th:text="|📞 ${usuarioDirecciones.Usuario.Telefono} 📱 ${usuarioDirecciones.Usuario.NCelular}|">
+                        <td class="align-middle" data-label="Contacto">
+                            <div th:text="|📞 ${usuarioDirecciones.Usuario.Telefono}|"></div>
+                            <div th:text="|📱 ${usuarioDirecciones.Usuario.NCelular}|"></div>
+                            <div th:text="|📨 ${usuarioDirecciones.Usuario.Email}|"></div>
                         </td>
                         <td class="align-middle" data-label="Dirección">
                             <ul>

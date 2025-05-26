@@ -5,16 +5,23 @@
 <body layout:fragment="body">
     <div class="container mt-5">
         <div class="row">
-            
+
             <!-- Retroceder -->
             <div class="col-12 mb-3">
-                <button onclick="window.history.back()" class="btn btn-outline-dark">
-                    <i class="bi bi-arrow-left"></i> Volver
-                </button>
+                <a th:href="@{/Usuario}" class="btn btn-outline-dark">
+                    <i class="bi bi-arrow-left"></i> Volver al inicio
+                </a>
             </div>
-            
+
+            <div th:if="${alertMessage}" th:class="'alert alert-' + ${alertType} + ' alert-dismissible fade show'"
+                role="alert">
+                <span th:text="${alertMessage}">Mensaje</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
             <!-- COntenido principal -->
             <div class="col-md-4">
+
                 <div class="card">
                     <img style="max-height: 250px; object-fit: contain; margin-top: 20px;" class="card-img-top"
                         alt="Imagen del usuario"

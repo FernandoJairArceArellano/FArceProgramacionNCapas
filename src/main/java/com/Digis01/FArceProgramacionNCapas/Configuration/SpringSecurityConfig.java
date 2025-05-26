@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -16,43 +18,66 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SpringSecurityConfig {
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable() //peticiones AJAX se protejen con tambien se puede solucionar dando los permisos en el EndPoint para no tener riesgos de seguridad
                 .authorizeHttpRequests((requests) -> requests
+                    
+                        // Acceso publico
                     .requestMatchers("/login").permitAll() // Acesso al login de manera libre
-                    .requestMatchers(HttpMethod.GET, "/CargaMasiva").hasRole("ADMINISTRADOR")
-                    .requestMatchers(HttpMethod.GET, "/consultaDatos").hasRole("ANALISTA") // Se agrega HttpMethod.GET, para limitar el verbo HTTP a utilizar
-                    //.requestMatchers("/consultaDatos").hasRole("ANALISTA")
+                        
+                        // Acceso Administrador
+                    .requestMatchers(HttpMethod.GET, "/Usuario/CargaMasiva").hasAnyRole("ADMINISTRADOR", "PROGRAMADOR")
+                    .requestMatchers(HttpMethod.POST, "/Usuario/CargaMasiva").hasAnyRole("ADMINISTRADOR", "PROGRAMADOR")
+                    .requestMatchers(HttpMethod.GET, "/Usuario/CargaMasiva/Procesar").hasAnyRole("ADMINISTRADOR", "PROGRAMADOR")
 
-                    .anyRequest().hasRole("PROGRAMADOR") // Acceso completo
+                        // Acceso Analista
+                    .requestMatchers(HttpMethod.GET, "/Usuario").hasAnyRole("ANALISTA", "PROGRAMADOR") // index
+                    .requestMatchers(HttpMethod.GET, "/Usuario/Form/*").hasAnyRole("ANALISTA", "PROGRAMADOR")
+                    .requestMatchers(HttpMethod.POST, "/Usuario/GetAllDinamico").hasAnyRole("ANALISTA", "PROGRAMADOR")
+                    .requestMatchers(HttpMethod.GET, "/Usuario/EstadoByIdPais/*").hasAnyRole("ANALISTA", "PROGRAMADOR")
+                    .requestMatchers(HttpMethod.GET, "/Usuario/MunicipioByIdEstado/*").hasAnyRole("ANALISTA", "PROGRAMADOR")
+                    .requestMatchers(HttpMethod.GET, "/Usuario/ColoniaByIdMunicipio/*").hasAnyRole("ANALISTA", "PROGRAMADOR")
+                    //.requestMatchers(HttpMethod.GET, "/Usuario").hasRole("ANALISTA") // Se agrega HttpMethod.GET, para limitar el verbo HTTP a utilizar
+                        
+                        // Acceso Programador
+                    //.requestMatchers("/Usuario/**").hasRole("PROGRAMADOR") // Acceso completo solo para PROGRAMADOR
+                    .anyRequest().hasRole("PROGRAMADOR") // Acceso completo solo para PROGRAMADOR
                 )
                 .formLogin((form) -> form
                     .permitAll()
                     //.defaultSuccessUrl("/Usuario", true) // Redireccion despues de login exitoso
-                    // .loginPage("/login") ruta a futuro para implementar un login propio
                     .successHandler((request, response, authentication) -> {
                         var roles = authentication.getAuthorities().toString();
-                        
+
+                            // Redireccion dependiendo la condicion del rol (Ruta completa del controller)
                         if (roles.contains("ROLE_PROGRAMADOR")) {
                             response.sendRedirect("/Usuario");
                         } else if (roles.contains("ROLE_ADMINISTRADOR")) {
                             response.sendRedirect("/Usuario/CargaMasiva");
                         } else if (roles.contains("ROLE_ANALISTA")) {
-                            response.sendRedirect("/consultaDatos");
+                            response.sendRedirect("/Usuario");
                         } else {
                             response.sendRedirect("/access-denied");
                         }
                     })
                 )
-                .logout((logout) -> logout.permitAll());
+                .logout((logout) -> logout.permitAll())
+                .exceptionHandling((exceptions) -> exceptions
+                    .accessDeniedPage("/access-denied")
+                );
 
         return http.build();
     }
 
     // Creacion de los Usuarios en Memoria
     @Bean
-    public UserDetailsService userDetailsService() {
+    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
         /*
             Para pruebas se usa withDefaultPasswordEncoder
                 -> Este método usa un codificador de contraseñas inseguro (simple en memoria)
@@ -60,7 +85,7 @@ public class SpringSecurityConfig {
                 -> Aplica un hashing seguro a las contraseñas
          */
 
-        UserDetails programador = User.withDefaultPasswordEncoder()
+        /*UserDetails programador = User.withDefaultPasswordEncoder()
                 .username("programador")
                 .password("1234")
                 .roles("PROGRAMADOR")
@@ -75,6 +100,24 @@ public class SpringSecurityConfig {
         UserDetails analista = User.withDefaultPasswordEncoder()
                 .username("analista")
                 .password("1234")
+                .roles("ANALISTA")
+                .build();*/
+ 
+        UserDetails programador = User.builder()
+                .username("programador")
+                .password(passwordEncoder.encode("1234"))
+                .roles("PROGRAMADOR")
+                .build();
+
+        UserDetails administrador = User.builder()
+                .username("admin")
+                .password(passwordEncoder.encode("1234"))
+                .roles("ADMINISTRADOR")
+                .build();
+
+        UserDetails analista = User.builder()
+                .username("analista")
+                .password(passwordEncoder.encode("1234"))
                 .roles("ANALISTA")
                 .build();
 

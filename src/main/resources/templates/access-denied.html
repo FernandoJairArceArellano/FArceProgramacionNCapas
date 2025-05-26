@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Acceso Denegado</title>
+</head>
+<body>
+    <h1>🚫 Acceso Denegado</h1>
+    <p><strong th:text="'Rol: ' + ${rol}">Rol desconocido</strong></p>
+    <p th:text="${mensaje}">No tienes permisos para acceder a esta página.</p>
+    <p>Ruta intentada: <span th:text="${rutaIntentada}">desconocida</span></p>
+    <a href="/login">Volver al inicio</a>
+</body>
+</html>

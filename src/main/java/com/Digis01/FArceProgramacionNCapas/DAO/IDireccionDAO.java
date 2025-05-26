@@ -14,6 +14,8 @@ public interface IDireccionDAO {
     // EntityManager
     Result GetByIdJPA(int IdDireccion);
     
+//    Result GetUsuarioIdByDireccionId(int idDireccion);
+    
     Result DireccionAddJPA(UsuarioDireccion usuarioDireccion);
     
     Result UpdateByIdJPA(UsuarioDireccion usuarioDireccion);

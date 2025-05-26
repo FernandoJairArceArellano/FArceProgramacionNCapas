@@ -22,6 +22,8 @@ import jakarta.validation.Valid;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -29,11 +31,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -45,6 +51,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/Usuario")
@@ -71,7 +78,7 @@ public class UsuarioController {
 
     @Autowired
     private DireccionDAOImplementation direccionDAOImplementation;
-    
+
     @GetMapping()
     public String Index(Model model) {
 
@@ -79,12 +86,22 @@ public class UsuarioController {
         Result resultJPA = usuarioDAOImplementation.GetAllJPA();
         //Result resultRol = RolDAOImplementation.GetAll();
         Result resultRol = RolDAOImplementation.GetAllJPA();
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String permisos = authentication.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .map(role -> role.replace("ROLE_", ""))
+                .collect(Collectors.joining(", "));
+
         Usuario usuarioBusqueda = new Usuario();
         usuarioBusqueda.Rol = new Rol();
 
         model.addAttribute("usuarioBusqueda", usuarioBusqueda);
         //model.addAttribute("roles", resultRol.object);
         model.addAttribute("roles", resultRol.objects);
+        model.addAttribute("permisos", permisos);
         model.addAttribute("listaUsuarios", resultJPA.objects);
 
         return "UsuarioIndex";
@@ -132,18 +149,22 @@ public class UsuarioController {
     }
 
     @GetMapping("/DeleteDireccion/{IdDireccion}")
-    public String deleteDireccionById(@PathVariable int IdDireccion, Model model) {
+    public String deleteDireccionById(@PathVariable int IdDireccion, Model model, RedirectAttributes redirectAttributes) {
         System.out.println("Voy a eliminar una direccion");
 
         Result result = direccionDAOImplementation.DeleteDireccionJPA(IdDireccion);
 
         if (result.correct) {
-            // Redirigir a usuario detail si todo sale bien
-            return "redirect:/Usuario";
+            // Mensaje de éxito
+            redirectAttributes.addFlashAttribute("alertType", "success");
+            redirectAttributes.addFlashAttribute("alertMessage", "Dirección eliminada correctamente");
         } else {
-            model.addAttribute("error", result.errorMessage);
-            return "error";
+            // Mensaje de error
+            redirectAttributes.addFlashAttribute("alertType", "danger");
+            redirectAttributes.addFlashAttribute("alertMessage", result.errorMessage);
         }
+
+        return "redirect:/Usuario";
     }
 
     // Muestra de formulario Carga Masiva
@@ -402,7 +423,7 @@ public class UsuarioController {
                 if (status != 0 && status != 1) {
                     listaErrores.add(new ResultFile(fila, String.valueOf(status), "El status debe ser 0 (inactivo) o 1 (activo)"));
                 }
-                
+
                 fila++;
             }
         }
@@ -476,7 +497,7 @@ public class UsuarioController {
         usuarioBusqueda.setStatus(-1);
         usuarioBusqueda.Rol = new Rol();
 
-        model.addAttribute("roles", resultRol.object);
+        model.addAttribute("roles", resultRol.objects);
         model.addAttribute("listaUsuarios", result.objects);
         model.addAttribute("usuarioBusqueda", usuarioBusqueda);
 
@@ -497,7 +518,7 @@ public class UsuarioController {
     }
 
     @PostMapping("Form")
-    public String Form(@Valid @ModelAttribute UsuarioDireccion usuarioDireccion, BindingResult BindingResult, @RequestParam(required = false) MultipartFile imagenFile, Model model) {
+    public String Form(@Valid @ModelAttribute UsuarioDireccion usuarioDireccion, BindingResult BindingResult, @RequestParam(required = false) MultipartFile imagenFile, RedirectAttributes redirectAttributes, Model model) {
 
 //        if (BindingResult.hasErrors()) {
 //            // Si hay errores, regresar al formunlario con los errores visibles
@@ -514,30 +535,51 @@ public class UsuarioController {
             System.out.println("Error al procesar informacion");
         }
 
+        Result result = new Result();
+
         if (usuarioDireccion.Usuario.getIdUsuario() == 0) {
             System.out.println("Estoy agregando un nuevo usuario y direccion");
             //usuarioDAOImplementation.Add(usuarioDireccion);
-            usuarioDAOImplementation.AddJPA(usuarioDireccion);
+            result = usuarioDAOImplementation.AddJPA(usuarioDireccion);
 
         } else {
             if (usuarioDireccion.Direccion.getIdDireccion() == -1) { // Editar Usuario
                 System.out.println("Estoy actualizando un usuario");
                 //usuarioDAOImplementation.Update(usuarioDireccion.Usuario);
-                usuarioDAOImplementation.UpdateJPA(usuarioDireccion.Usuario);
+                result = usuarioDAOImplementation.UpdateJPA(usuarioDireccion.Usuario);
             } else if (usuarioDireccion.Direccion.getIdDireccion() == 0) { // Agregar direccion
                 System.out.println("Estoy agregando direccion");
                 //direccionDAOImplementation.DireccionAdd(usuarioDireccion);
-                direccionDAOImplementation.DireccionAddJPA(usuarioDireccion);
+                result = direccionDAOImplementation.DireccionAddJPA(usuarioDireccion);
             } else { // Editar direccion
                 System.out.println("Estoy actualizando direccion");
                 //direccionDAOImplementation.UpdateById(usuarioDireccion);
-                direccionDAOImplementation.UpdateByIdJPA(usuarioDireccion);
+                result = direccionDAOImplementation.UpdateByIdJPA(usuarioDireccion);
             }
         }
         // Si no hay errores en la BD guardar los datos
 //        usuarioDAOImplementation.Add(usuarioDireccion);
 
-        return "redirect:/Usuario";
+//        return "redirect:/Usuario";
+        if (!result.correct) {
+            // Mandar el mensaje de error al modelo para mostrarlo como alerta
+            model.addAttribute("alertType", "danger");
+            model.addAttribute("alertMessage", result.errorMessage);
+            model.addAttribute("usuarioDireccion", usuarioDireccion);
+            return "UsuarioForm"; // Mostrar el mismo formulario
+        }
+
+        // Si todo fue bien, mostramos mensaje de éxito
+        redirectAttributes.addFlashAttribute("alertType", "success");
+        redirectAttributes.addFlashAttribute("alertMessage", "Operación realizada con éxito");
+
+        if (usuarioDireccion.Usuario.getIdUsuario() != 0) {
+            // Redirige a la vista del formulario de ese usuario
+            return "redirect:/Usuario/Form/" + usuarioDireccion.Usuario.getIdUsuario();
+        } else {
+            // Redirige a lista de usuarios si es uno nuevo (o puedes adaptarlo)
+            return "redirect:/Usuario";
+        }
     }
 
     @GetMapping("EstadoByIdPais/{IdPais}")

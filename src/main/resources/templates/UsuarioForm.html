@@ -11,11 +11,15 @@
 
         <!-- Retroceder -->
         <div class="col-12 mb-3">
-            <button onclick="window.history.back()" class="btn btn-outline-dark">
-                <i class="bi bi-arrow-left"></i> Volver
+            <a th:href="@{/Usuario}" class="btn btn-outline-dark">
+                <i class="bi bi-arrow-left"></i> Volver al inicio
+            </a>
+
+            <button onclick="window.history.back()" class="btn btn-danger ">
+                <i class="bi bi-x-circle"></i> Cancelar
             </button>
         </div>
-        
+
         <div class="form-container">
             <h3 class="text-center mb-4">Agregar Usuario</h3>
             <form th:action="@{/Usuario/Form}" method="post" th:object="${usuarioDireccion}"
