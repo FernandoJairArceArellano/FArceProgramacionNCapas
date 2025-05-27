@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://wwww.ultraq.net.nz/thymeleaf/layout" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+    xmlns:layout="http://wwww.ultraq.net.nz/thymeleaf/layout" lang="en">
 
 <head>
     <title>Document</title>
@@ -18,6 +19,8 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
         <!-- Marca -->
+
+
         <a class="navbar-brand" th:href="@{/Usuario}">Risosu IT</a>
 
         <!-- Botón hamburguesa -->
@@ -29,10 +32,18 @@
         <!-- Contenido colapsable -->
         <div class="collapse navbar-collapse order-1 order-lg-0" id="navbarNav">
             <ul class="navbar-nav me-auto ms-auto">
-                <li class="nav-item"><a class="nav-link" th:href="@{/Usuario}">Inicio</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/Usuario/Form/0}">Agregar usuario</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/Usuario/CargaMasiva}">Carga Masiva</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Navbar</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/Usuario}">Inicio</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('PROGRAMADOR')">
+                    <a class="nav-link" th:href="@{/Usuario/Form/0}">Agregar usuario</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('PROGRAMADOR','ADMINISTRADOR')">
+                    <a class="nav-link" th:href="@{/Usuario/CargaMasiva}">Carga Masiva</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('PROGRAMADOR')">
+                    <a class="nav-link" href="#">Navbar</a>
+                </li>
             </ul>
         </div>
 

@@ -2,6 +2,11 @@
     layout:decorate=~{layout}>
 <!--<title>Ver Usuario</title>-->
 
+<head>
+    <title>Detalles del Usuario</title>
+</head>
+
+
 <body layout:fragment="body">
     <div class="container mt-5">
         <div class="row">
@@ -38,8 +43,10 @@
                         <p class="card-text" th:text="|Email: ${usuarioDirecciones.Usuario.Email}|"></p>
                         <!-- Editar Usuario -->
                         <a class="btn btn-warning btn-sm"
-                            th:href="@{/Usuario/formEditable(IdUsuario=${usuarioDirecciones.Usuario.IdUsuario})}">Editar
-                            datos</a>
+                            th:href="@{/Usuario/formEditable(IdUsuario=${usuarioDirecciones.Usuario.IdUsuario})}">
+                            <span
+                                th:text="${#authorization.expression('hasRole(''PROGRAMADOR'')')} ? ' Editar Datos' : ' Ver Datos'"></span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -47,11 +54,10 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Direcciones Asignadas</h5>
-                        <a class="btn btn-secondary mt-2 col-12"
+                        <a class="btn btn-secondary mt-2 col-12" sec:authorize="hasRole('PROGRAMADOR')"
                             th:href="@{/Usuario/formEditable?IdUsuario=}+${usuarioDirecciones.Usuario.IdUsuario}+'&IdDireccion=0'">Agregar
                             Dirección</a>
-
-                        <br /><br />
+                        <br /><br sec:authorize="hasRole('PROGRAMADOR')" />
 
                         <table class="table table-responsive table-bordered table-dark table-striped">
                             <thead>
@@ -65,9 +71,15 @@
                                     <td th:text="${direccion.Calle}"></td>
                                     <td>
                                         <a class="btn btn-warning btn-sm"
-                                            th:href="@{/Usuario/formEditable?IdUsuario=}+${usuarioDirecciones.Usuario.IdUsuario}+'&IdDireccion='+${direccion.IdDireccion}">Editar</a>
-                                        <a class="btn btn-danger btn-sm"
-                                            th:href="@{'/Usuario/DeleteDireccion/' + ${direccion.IdDireccion}}">Eliminar</a>
+                                            th:href="@{/Usuario/formEditable?IdUsuario=}+${usuarioDirecciones.Usuario.IdUsuario}+'&IdDireccion='+${direccion.IdDireccion}">
+                                            <span
+                                                th:text="${#authorization.expression('hasRole(''PROGRAMADOR'')')} ? ' Editar Datos' : ' Ver Datos'"></span>
+
+                                        </a>
+                                        <a class="btn btn-danger btn-sm" sec:authorize="hasRole('PROGRAMADOR')"
+                                            th:href="@{'/Usuario/DeleteDireccion/' + ${direccion.IdDireccion}}">
+                                            Eliminar
+                                        </a>
                                     </td>
                                 </tr>
                             </tbody>

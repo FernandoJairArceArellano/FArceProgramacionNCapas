@@ -1,5 +1,5 @@
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultra.net.nz/thyemeleaf/layout"
-    layout:decorate=~{layout}>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+    xmlns:layout="http://www.ultra.net.nz/thyemeleaf/layout" layout:decorate=~{layout}>
 
 <head>
     <title>Index Usuarios</title>
@@ -20,8 +20,26 @@
 
         <div class="container">
             <!-- Botón para agregar usuario -->
-            <a class="btn btn-primary btn-add" th:href="@{/Usuario/Form/0}"> <i class="bi bi-person-add"></i> Agregar
-                usuario</a>
+            <a class="btn btn-primary btn-add" th:href="@{/Usuario/Form/0}" sec:authorize="hasRole('PROGRAMADOR')">
+                <i class="bi bi-person-add"></i> Agregar usuario</a>
+
+
+            <div sec:authorize="isAuthenticated()">
+                Bienvenido, usuario autenticado.
+            </div>
+
+            <div sec:authorize="hasRole('PROGRAMADOR')">
+                Este contenido solo lo ven los programadores.
+            </div>
+
+            <div sec:authorize="hasRole('ADMINISTRADOR')">
+                Este contenido solo lo ven los administradores.
+            </div>
+
+            <div sec:authorize="hasRole('ANALISTA')">
+                Este contenido lo ven los usuarios analistas.
+            </div>
+
             <div class="form-container">
                 <form th:action="@{/Usuario/GetAllDinamico}" method="post" th:object="${usuarioBusqueda}">
                     <div class="row g-3 align-items-end mb-3">
@@ -98,17 +116,31 @@
                         </td>
                         <td class="align-middle" data-label="Username" th:text="${usuarioDirecciones.Usuario.Username}">
                         </td>
-                        <td class="align-middle text-nowrap" style="min-width: 120px;" data-label="Status">
-                            <div class="form-check form-switch d-flex align-items-center gap-2">
-                                <input class="form-check-input status-switch" type="checkbox"
-                                    th:id="'statusSwitch' + ${usuarioDirecciones.Usuario.IdUsuario}"
-                                    th:checked="${usuarioDirecciones.Usuario.Status == 1}"
-                                    th:data-id="${usuarioDirecciones.Usuario.IdUsuario}">
-                                <label class="form-check-label status-label m-0"
-                                    th:for="'statusSwitch' + ${usuarioDirecciones.Usuario.IdUsuario}"
-                                    th:text="${usuarioDirecciones.Usuario.Status == 1 ? 'Activo' : 'Inactivo'}"></label>
+                        <td class="align-middle text-nowrap text-center" style="min-width: 120px;" data-label="Status">
+                            <div class="d-flex justify-content-center align-items-center w-100 gap-2">
+                                <!-- Para PROGRAMADOR y otros roles que NO sean ANALISTA ni ADMINISTRADOR-->
+                                <div sec:authorize="!hasAnyRole('ANALISTA','ADMINISTRADOR')"
+                                    class="form-check form-switch d-flex align-items-center gap-2">
+                                    <input class="form-check-input status-switch" type="checkbox"
+                                        th:id="'statusSwitch' + ${usuarioDirecciones.Usuario.IdUsuario}"
+                                        th:checked="${usuarioDirecciones.Usuario.Status == 1}"
+                                        th:data-id="${usuarioDirecciones.Usuario.IdUsuario}">
+                                    <label class="form-check-label status-label m-0"
+                                        th:for="'statusSwitch' + ${usuarioDirecciones.Usuario.IdUsuario}"
+                                        th:text="${usuarioDirecciones.Usuario.Status == 1 ? 'Activo' : 'Inactivo'}"></label>
+                                </div>
+
+                                <!-- Para ANALISTA: solo badge sin switch -->
+                                <div sec:authorize="hasAnyRole('ANALISTA','ADMINISTRADOR')" class="d-flex align-items-center">
+                                    <span th:text="${usuarioDirecciones.Usuario.Status == 1 ? 'Activo' : 'Inactivo'}"
+                                        class="badge text-center"
+                                        th:classappend="${usuarioDirecciones.Usuario.Status == 1 ? ' bg-success' : ' bg-secondary'}"
+                                        style="min-width: 100px; font-size: 1rem; padding: 0.4rem 0.6rem; border-radius: 0.5rem;">
+                                    </span>
+                                </div>
                             </div>
                         </td>
+
                         <td class="align-middle" data-label="Contacto">
                             <div th:text="|📞 ${usuarioDirecciones.Usuario.Telefono}|"></div>
                             <div th:text="|📱 ${usuarioDirecciones.Usuario.NCelular}|"></div>
@@ -140,9 +172,11 @@
                             <div class="d-flex flex-column flex-md-row gap-2 justify-content-center">
                                 <a class="btn btn-warning btn-sm btn-action"
                                     th:href="@{/Usuario/Form/{IdUsuario}(IdUsuario = ${usuarioDirecciones.Usuario.IdUsuario})}">
-                                    <i class="bi bi-pencil-square"></i> Editar
+                                    <i class="bi bi-pencil-square"></i>
+                                    <span
+                                        th:text="${#authorization.expression('hasRole(''PROGRAMADOR'')')} ? ' Editar' : ' Ver Informacion'"></span>
                                 </a>
-                                <a class="btn btn-danger btn-sm btn-action"
+                                <a class="btn btn-danger btn-sm btn-action" sec:authorize="hasRole('PROGRAMADOR')"
                                     th:href="@{/Usuario/Delete/{IdUsuario}(IdUsuario = ${usuarioDirecciones.Usuario.IdUsuario})}">
                                     <i class="bi bi-trash3"></i> Eliminar
                                 </a>

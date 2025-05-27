@@ -16,7 +16,9 @@
             </a>
 
             <button onclick="window.history.back()" class="btn btn-danger ">
-                <i class="bi bi-x-circle"></i> Cancelar
+                <i class="bi bi-x-circle"></i>
+                <span
+                    th:text="${#authorization.expression('hasRole(''PROGRAMADOR'')')} ? 'Cancelar' : 'Retroceder'"></span>
             </button>
         </div>
 
@@ -38,7 +40,8 @@
                             <div class="col-12 col-md-6">
                                 <label for="nombre" class="form-label"><i class="bi bi-person"></i> Nombre(s)</label>
                                 <input type="text" id="NombreUsuario" class="form-control" placeholder="Nombre"
-                                    th:field="*{Usuario.Nombre}" onkeypress="return SoloLetrasNombre(event, this)">
+                                    th:field="*{Usuario.Nombre}" onkeypress="return SoloLetrasNombre(event, this)"
+                                    th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                                 <span th:if="${#fields.hasErrors('Usuario.Nombre')}"
                                     th:errors="*{Usuario.Nombre}"></span>
                                 <span id="NombreUsuarioError" class="text-danger"></span>
@@ -48,7 +51,8 @@
                                     Apellido Paterno</label>
                                 <input type="text" class="form-control" id="ApellidoPaternoUsuario"
                                     placeholder="Apellido Paterno" th:field="*{Usuario.ApellidoPaterno}"
-                                    onkeypress="return SoloLetrasNombre(event, this)">
+                                    onkeypress="return SoloLetrasNombre(event, this)"
+                                    th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                                 <span th:if="${#fields.hasErrors('Usuario.ApellidoPaterno')}"
                                     th:errors="*{Usuario.ApellidoPaterno}"></span>
                                 <span id="ApellidoPaternoUsuarioError" class="text-danger"></span>
@@ -58,7 +62,8 @@
                                     Apellido Materno</label>
                                 <input type="text" class="form-control" id="ApellidoMaternoUsuario"
                                     placeholder="Apellido Materno" th:field="*{Usuario.ApellidoMaterno}"
-                                    onkeypress="return SoloLetrasNombre(event, this)">
+                                    onkeypress="return SoloLetrasNombre(event, this)"
+                                    th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                                 <span th:if="${#fields.hasErrors('Usuario.ApellidoMaterno')}"
                                     th:errors="*{Usuario.ApellidoMaterno}"></span>
                                 <span id="ApellidoMaternoUsuarioError" class="text-danger"></span>
@@ -67,7 +72,8 @@
                                 <label for="fechaNacimiento" class="form-label"><i class="bi bi-calendar"></i> Fecha de
                                     nacimiento</label>
                                 <input type="date" class="form-control" id="fechaNacimiento"
-                                    onblur="validarFechaNacimiento(this)" th:field="*{Usuario.FNacimiento}">
+                                    onblur="validarFechaNacimiento(this)" th:field="*{Usuario.FNacimiento}"
+                                    th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                                 <span id="fechaNacimientoError" class="text-danger"></span>
                             </div>
                         </div>
@@ -75,7 +81,8 @@
                             <div class="col-12 col-md-6">
                                 <label for="CURP" class="form-label"><i class="bi bi-card-text"></i> CURP</label>
                                 <input type="text" class="form-control" id="CURP" placeholder="CURP"
-                                    th:field="*{Usuario.CURP}" onkeypress="return validarCURP(event, this)">
+                                    th:field="*{Usuario.CURP}" onkeypress="return validarCURP(event, this)"
+                                    th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                                 <span th:if="${#fields.hasErrors('Usuario.CURP')}" th:errors="*{Usuario.CURP}"></span>
                                 <span id="CURPError" class="text-danger"></span>
                             </div>
@@ -83,7 +90,8 @@
                                 <label for="Rol" class="form-label" id="rol"><i class="bi bi-person-rolodex"></i>
                                     Rol</label>
                                 <select class="form-select" id="rolUsuario" aria-label="Default select example"
-                                    th:field="*{Usuario.Rol.IdRol}">
+                                    th:field="*{Usuario.Rol.IdRol}"
+                                    th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                                     <option value=0 selected>Seleccione un Rol</option>
                                     <option th:each="rol : ${roles}" th:value="${rol.IdRol}" th:text="${rol.Nombre}">One
                                     </option>
@@ -94,7 +102,8 @@
                                 <label for="Sexo" class="form-label"><i class="bi bi-person-arms-up"></i> Sexo</label>
                                 <input type="text" name="sexo" id="sexo" class="form-control" maxlength="1"
                                     placeholder="Ingrese su Sexo (M/F)" th:field="*{Usuario.Sexo}"
-                                    onblur="validarSexo(this)">
+                                    onblur="validarSexo(this)"
+                                    th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                                 <span id="sexoError" class="text-danger"></span>
                             </div>
                         </div>
@@ -102,7 +111,8 @@
                     <div class="col-md-4 text-center d-flex flex-column align-items-center">
                         <div class="card p-3 w-100 h-100">
                             <label for="imagenFile" class="form-label fw-bold">Imagen</label>
-                            <input type="file" class="form-control mb-2" name="imagenFile" id="imagenFile">
+                            <input type="file" class="form-control mb-2" name="imagenFile" id="imagenFile"
+                                th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                             <img id="previewImage" class="img-fluid rounded img-container"
                                 th:src="${usuarioDireccion.Usuario.Imagen != null} ? 'data:image/png;base64,' + ${usuarioDireccion.Usuario.Imagen} :'https://static-00.iconduck.com/assets.00/profile-default-icon-2048x2045-u3j7s5nj.png'" />
                         </div>
@@ -114,14 +124,16 @@
                             <label for="telefono" class="form-label"><i class="bi bi-telephone"></i> Teléfono</label>
                             <input type="text" class="form-control" id="telefono" name="telefono"
                                 placeholder="Ingrese su teléfono" th:field="*{Usuario.Telefono}"
-                                onkeypress="return validarTelefono(event, this)">
+                                onkeypress="return validarTelefono(event, this)"
+                                th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                             <span id="telefonoError" class="text-danger"></span>
                         </div>
                         <div class="col-12 col-md-6">
                             <label for="celular" class="form-label"><i class="bi bi-phone"></i> Celular</label>
                             <input type="text" class="form-control" id="celular" name="celular"
                                 placeholder="Ingrese su celular" th:field="*{Usuario.NCelular}"
-                                onblur="validarCelular(this)">
+                                onblur="validarCelular(this)"
+                                th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                             <span id="celularError" class="text-danger"></span>
                         </div>
                         <div class="col-12 col-md-6">
@@ -129,21 +141,24 @@
                                 usuario</label>
                             <input type="text" class="form-control" id="Username" name="Username"
                                 placeholder="Ingrese un nombre de usuario" th:field="*{Usuario.Username}"
-                                onblur="validarUsuario(this)">
+                                onblur="validarUsuario(this)"
+                                th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                             <span id="UsernameError" class="text-danger"></span>
                         </div>
                         <div class="col-12 col-md-6">
                             <label for="correo" class="form-label"><i class="bi bi-envelope"></i> Correo
                                 Electrónico</label>
                             <input type="email" class="form-control" id="correo" name="Email"
-                                placeholder="Ingrese su correo" th:field="*{Usuario.Email}" onblur="validarEmail(this)">
+                                placeholder="Ingrese su correo" th:field="*{Usuario.Email}" onblur="validarEmail(this)"
+                                th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                             <span id="correoError" class="text-danger"></span>
                         </div>
                         <div class="col-12 col-md-6">
                             <label for="PasswordUsuario" class="form-label"><i class="bi bi-key"></i> Contraseña</label>
                             <input type="text" class="form-control" id="password" name="password"
                                 placeholder="Ingrese su contraseña" th:field="*{Usuario.Password}"
-                                onblur="validarPassword(event, this)">
+                                onblur="validarPassword(event, this)"
+                                th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                             <span id="PasswordError" class="text-danger"></span>
                         </div>
                     </div>
@@ -164,7 +179,8 @@
                     <div class="col-12 col-md-6">
                         <label for="paisddl" class="form-label"><i class="bi bi-globe2"></i> País</label>
                         <select class="form-select" id="paisddl" aria-label="Default select example"
-                            th:field="*{Direccion.Colonia.Municipio.Estado.Pais.IdPais}">
+                            th:field="*{Direccion.Colonia.Municipio.Estado.Pais.IdPais}"
+                            th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                             <option value="0" selected>Seleccione un País</option>
                             <option th:each="pais : ${paises}" th:value="${pais.idPais}" th:text="${pais.nombre}">
                             </option>
@@ -175,7 +191,8 @@
                         <label for="estadoddl" class="form-label fw-bold"><i class="bi bi-globe-americas"></i>
                             Estado</label>
                         <select id="estadoddl" class="form-select" aria-label="Default select example"
-                            th:field="*{Direccion.Colonia.Municipio.Estado.IdEstado}">
+                            th:field="*{Direccion.Colonia.Municipio.Estado.IdEstado}"
+                            th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                             <option value="0" selected>Selecciona un Estado</option>
                         </select>
                     </div>
@@ -184,7 +201,8 @@
                         <label for="municipioddl" class="form-label fw-bold"><i class="bi bi-cursor"></i>
                             Municipio</label>
                         <select id="municipioddl" class="form-select" aria-label="Default select example"
-                            th:field="*{Direccion.Colonia.Municipio.IdMunicipio}">
+                            th:field="*{Direccion.Colonia.Municipio.IdMunicipio}"
+                            th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                             <option value="0" selected>Selecciona un Municipio</option>
                         </select>
                     </div>
@@ -192,7 +210,8 @@
                     <div class="col-12 col-md-6">
                         <label for="coloniaddl" class="form-label fw-bold"><i class="bi bi-cursor"></i> Colonia</label>
                         <select id="coloniaddl" class="form-select" aria-label="Default select example"
-                            th:field="*{Direccion.Colonia.IdColonia}">
+                            th:field="*{Direccion.Colonia.IdColonia}"
+                            th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                             <option value="0" selected>Selecciona una Colonia</option>
                         </select>
                     </div>
@@ -200,29 +219,33 @@
                     <div class="col-12 col-md-6">
                         <label for="calle" class="form-label">Calle</label>
                         <input type="text" class="form-control" id="calle" placeholder="Calle"
-                            th:field="*{Direccion.Calle}">
+                            th:field="*{Direccion.Calle}"
+                            th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                         <span th:if="${#fields.hasErrors('Direccion.Calle')}" th:errors="*{Direccion.Calle}"></span>
                     </div>
 
                     <div class="col-12 col-md-6">
                         <label for="CodigoPostal" class="form-label">Código Postal</label>
                         <input type="text" id="CodigoPostal" class="form-control" placeholder="Código Postal"
-                            th:field="*{Direccion.Colonia.CodigoPostal}">
+                            th:field="*{Direccion.Colonia.CodigoPostal}"
+                            th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                     </div>
 
                     <div class="col-6 col-md-6">
                         <label for="nInterior" class="form-label">N. int</label>
                         <input type="text" class="form-control" id="nInterior" placeholder="N. int"
-                            th:field="*{Direccion.NumeroInterior}">
+                            th:field="*{Direccion.NumeroInterior}"
+                            th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                     </div>
 
                     <div class="col-6 col-md-6">
                         <label for="nExterior" class="form-label">N. ext</label>
                         <input type="text" class="form-control" id="nExterior" placeholder="N. ext"
-                            th:field="*{Direccion.NumeroExterior}">
+                            th:field="*{Direccion.NumeroExterior}"
+                            th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary btn-submit mt-3"
+                <button type="submit" class="btn btn-primary btn-submit mt-3" sec:authorize="hasRole('PROGRAMADOR')"
                     th:text="*{(Usuario.IdUsuario) == 0 || (Direccion.IdDireccion) == 0 ? 'Agregar Datos' : 'Editar Datos'}">
                     <i class="bi bi-save"></i> Guardar Usuario
                 </button>
