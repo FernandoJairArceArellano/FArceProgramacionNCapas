@@ -54,10 +54,10 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Direcciones Asignadas</h5>
-                        <a class="btn btn-secondary mt-2 col-12" sec:authorize="hasRole('PROGRAMADOR')"
+                        <a class="btn btn-secondary mt-2 col-12" sec:authorize="hasAnyRole('PROGRAMADOR','Administrador')"
                             th:href="@{/Usuario/formEditable?IdUsuario=}+${usuarioDirecciones.Usuario.IdUsuario}+'&IdDireccion=0'">Agregar
                             Dirección</a>
-                        <br /><br sec:authorize="hasRole('PROGRAMADOR')" />
+                        <br /><br sec:authorize="hasAnyRole('PROGRAMADOR','Administrador')" />
 
                         <table class="table table-responsive table-bordered table-dark table-striped">
                             <thead>
@@ -73,10 +73,10 @@
                                         <a class="btn btn-warning btn-sm"
                                             th:href="@{/Usuario/formEditable?IdUsuario=}+${usuarioDirecciones.Usuario.IdUsuario}+'&IdDireccion='+${direccion.IdDireccion}">
                                             <span
-                                                th:text="${#authorization.expression('hasRole(''PROGRAMADOR'')')} ? ' Editar Datos' : ' Ver Datos'"></span>
+                                                th:text="${#authorization.expression('hasAnyRole(''Administrador'',''PROGRAMADOR'')')} ? ' Editar Datos' : ' Ver Datos'"></span>
 
                                         </a>
-                                        <a class="btn btn-danger btn-sm" sec:authorize="hasRole('PROGRAMADOR')"
+                                        <a class="btn btn-danger btn-sm" sec:authorize="hasAnyRole('PROGRAMADOR','Administrador')"
                                             th:href="@{'/Usuario/DeleteDireccion/' + ${direccion.IdDireccion}}">
                                             Eliminar
                                         </a>

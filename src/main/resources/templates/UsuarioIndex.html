@@ -20,7 +20,7 @@
 
         <div class="container">
             <!-- Botón para agregar usuario -->
-            <a class="btn btn-primary btn-add" th:href="@{/Usuario/Form/0}" sec:authorize="hasRole('PROGRAMADOR')">
+            <a class="btn btn-primary btn-add" th:href="@{/Usuario/Form/0}" sec:authorize="hasAnyRole('PROGRAMADOR','Administrador')">
                 <i class="bi bi-person-add"></i> Agregar usuario</a>
 
 
@@ -28,15 +28,15 @@
                 Bienvenido, usuario autenticado.
             </div>
 
-            <div sec:authorize="hasRole('PROGRAMADOR')">
+            <div sec:authorize="hasRole('Administrador')">
                 Este contenido solo lo ven los programadores.
             </div>
 
-            <div sec:authorize="hasRole('ADMINISTRADOR')">
+            <div sec:authorize="hasRole('Comprador')">
                 Este contenido solo lo ven los administradores.
             </div>
 
-            <div sec:authorize="hasRole('ANALISTA')">
+            <div sec:authorize="hasRole('Usuario')">
                 Este contenido lo ven los usuarios analistas.
             </div>
 
@@ -119,7 +119,7 @@
                         <td class="align-middle text-nowrap text-center" style="min-width: 120px;" data-label="Status">
                             <div class="d-flex justify-content-center align-items-center w-100 gap-2">
                                 <!-- Para PROGRAMADOR y otros roles que NO sean ANALISTA ni ADMINISTRADOR-->
-                                <div sec:authorize="!hasAnyRole('ANALISTA','ADMINISTRADOR')"
+                                <div sec:authorize="!hasAnyRole('Usuario','Comprador')"
                                     class="form-check form-switch d-flex align-items-center gap-2">
                                     <input class="form-check-input status-switch" type="checkbox"
                                         th:id="'statusSwitch' + ${usuarioDirecciones.Usuario.IdUsuario}"
@@ -131,7 +131,7 @@
                                 </div>
 
                                 <!-- Para ANALISTA: solo badge sin switch -->
-                                <div sec:authorize="hasAnyRole('ANALISTA','ADMINISTRADOR')" class="d-flex align-items-center">
+                                <div sec:authorize="hasAnyRole('Usuario','Comprador')" class="d-flex align-items-center">
                                     <span th:text="${usuarioDirecciones.Usuario.Status == 1 ? 'Activo' : 'Inactivo'}"
                                         class="badge text-center"
                                         th:classappend="${usuarioDirecciones.Usuario.Status == 1 ? ' bg-success' : ' bg-secondary'}"
@@ -174,9 +174,9 @@
                                     th:href="@{/Usuario/Form/{IdUsuario}(IdUsuario = ${usuarioDirecciones.Usuario.IdUsuario})}">
                                     <i class="bi bi-pencil-square"></i>
                                     <span
-                                        th:text="${#authorization.expression('hasRole(''PROGRAMADOR'')')} ? ' Editar' : ' Ver Informacion'"></span>
+                                        th:text="${#authorization.expression('hasRole(''Administrador'')')} ? ' Editar' : ' Ver Informacion'"></span>
                                 </a>
-                                <a class="btn btn-danger btn-sm btn-action" sec:authorize="hasRole('PROGRAMADOR')"
+                                <a class="btn btn-danger btn-sm btn-action" sec:authorize="hasRole('Administrador')"
                                     th:href="@{/Usuario/Delete/{IdUsuario}(IdUsuario = ${usuarioDirecciones.Usuario.IdUsuario})}">
                                     <i class="bi bi-trash3"></i> Eliminar
                                 </a>

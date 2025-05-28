@@ -69,63 +69,76 @@ public class SpringSecurityConfig {
 //                        }
 //                    })
 //                )
-//                .logout((logout) -> logout.permitAll())
+//                .logout((logout) -> logout
+//                .logoutUrl("/logout")
+//                .invalidateHttpSession(true)
+//                .clearAuthentication(true)
+//                .deleteCookies("JSESSIONID")
+//                .logoutSuccessHandler((request, response, authentication) -> {
+//                    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+//                    response.setHeader("Pragma", "no-cache");
+//                    response.setDateHeader("Expires", 0);
+//                    response.sendRedirect("/login?logout");
+//                })
+//                )
 //                .exceptionHandling((exceptions) -> exceptions
-//                    .accessDeniedPage("/access-denied")
+//                .accessDeniedPage("/access-denied")
+//                )
+//                .headers(headers -> headers
+//                .cacheControl(cache -> cache.disable())
 //                );
 //
 //        return http.build();
 //    }
-
     // Creacion de los Usuarios en Memoria
-    @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        
-    /*
-            Para pruebas se usa withDefaultPasswordEncoder
-                -> Este método usa un codificador de contraseñas inseguro (simple en memoria)
-            Para produccion se usa PasswordEncoder como BCryptPasswordEncoder
-                -> Aplica un hashing seguro a las contraseñas
-     */
-
-        /*UserDetails programador = User.withDefaultPasswordEncoder()
-                .username("programador")
-                .password("1234")
-                .roles("PROGRAMADOR")
-                .build();
-
-        UserDetails administrador = User.withDefaultPasswordEncoder()
-                .username("admin")
-                .password("1234")
-                .roles("ADMINISTRADOR")
-                .build();
-
-        UserDetails analista = User.withDefaultPasswordEncoder()
-                .username("analista")
-                .password("1234")
-                .roles("ANALISTA")
-                .build();*/
- 
-        UserDetails programador = User.builder()
-                .username("programador")
-                .password(passwordEncoder.encode("1234"))
-                .roles("PROGRAMADOR")
-                .build();
-
-        UserDetails administrador = User.builder()
-                .username("admin")
-                .password(passwordEncoder.encode("1234"))
-                .roles("ADMINISTRADOR")
-                .build();
-
-        UserDetails analista = User.builder()
-                .username("analista")
-                .password(passwordEncoder.encode("1234"))
-                .roles("ANALISTA")
-                .build();
-
-        return new InMemoryUserDetailsManager(programador, administrador, analista);
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+//        
+//    
+//            //Para pruebas se usa withDefaultPasswordEncoder
+//                //-> Este método usa un codificador de contraseñas inseguro (simple en memoria)
+//            //Para produccion se usa PasswordEncoder como BCryptPasswordEncoder
+//                //-> Aplica un hashing seguro a las contraseñas
+//
+//
+////        UserDetails programador = User.withDefaultPasswordEncoder()
+////                .username("programador")
+////                .password("1234")
+////                .roles("PROGRAMADOR")
+////                .build();
+////
+////        UserDetails administrador = User.withDefaultPasswordEncoder()
+////                .username("admin")
+////                .password("1234")
+////                .roles("ADMINISTRADOR")
+////                .build();
+////
+////        UserDetails analista = User.withDefaultPasswordEncoder()
+////                .username("analista")
+////                .password("1234")
+////                .roles("ANALISTA")
+////                .build();
+// 
+//        UserDetails programador = User.builder()
+//                .username("programador")
+//                .password(passwordEncoder.encode("1234"))
+//                .roles("PROGRAMADOR")
+//                .build();
+//
+//        UserDetails administrador = User.builder()
+//                .username("admin")
+//                .password(passwordEncoder.encode("1234"))
+//                .roles("ADMINISTRADOR")
+//                .build();
+//
+//        UserDetails analista = User.builder()
+//                .username("analista")
+//                .password(passwordEncoder.encode("1234"))
+//                .roles("ANALISTA")
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(programador, administrador, analista);
+//    }
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -134,11 +147,11 @@ public class SpringSecurityConfig {
                 .authorizeHttpRequests(
                         configure -> configure
                                 .requestMatchers("/login", "/access-denied").permitAll()
-                                .requestMatchers("/Usuario").hasAnyRole("ADMINISTRADOR", "PROGRAMADOR", "ANALISTA")
-                                .requestMatchers(HttpMethod.POST, "/Usuario/GetAllDinamico").hasAnyRole("ADMINISTRADOR", "PROGRAMADOR", "ANALISTA")
-                                .requestMatchers("/Usuario/CargaMasiva").hasAnyRole("ADMINISTRADOR", "PROGRAMADOR")
-                                .requestMatchers(HttpMethod.GET, "/Usuario/**").hasAnyRole("ANALISTA", "PROGRAMADOR", "ADMINISTRADOR")
-                                .requestMatchers(HttpMethod.POST, "/Usuario/**").hasRole("PROGRAMADOR")
+                                .requestMatchers("/Usuario").hasAnyRole("ADMINISTRADOR", "PROGRAMADOR", "ANALISTA", "Administrador", "Usuario", "Comprador", "Visitnate")
+                                .requestMatchers(HttpMethod.POST, "/Usuario/GetAllDinamico").hasAnyRole("ADMINISTRADOR", "Comprador","PROGRAMADOR", "Administrador","ANALISTA", "Usuario")
+                                .requestMatchers("/Usuario/CargaMasiva").hasAnyRole("ADMINISTRADOR", "Comprador","PROGRAMADOR", "Administrador")
+                                .requestMatchers(HttpMethod.GET, "/Usuario/**").hasAnyRole("ANALISTA", "Visitante","PROGRAMADOR", "Administrador","ADMINISTRADOR", "Comprador")
+                                .requestMatchers(HttpMethod.POST, "/Usuario/**").hasAnyRole("PROGRAMADOR", "Administrador")
                                 .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
@@ -147,11 +160,11 @@ public class SpringSecurityConfig {
                     var roles = authentication.getAuthorities().toString();
 
                     // Redireccion dependiendo la condicion del rol (Ruta completa del controller)
-                    if (roles.contains("ROLE_PROGRAMADOR")) {
+                    if (roles.contains("ROLE_Administrador")) {
                         response.sendRedirect("/Usuario");
-                    } else if (roles.contains("ROLE_ADMINISTRADOR")) {
+                    } else if (roles.contains("ROLE_Comprador")) {
                         response.sendRedirect("/Usuario/CargaMasiva");
-                    } else if (roles.contains("ROLE_ANALISTA")) {
+                    } else if (roles.contains("ROLE_Visitante")) {
                         response.sendRedirect("/Usuario");
                     } else {
                         response.sendRedirect("/access-denied");
@@ -180,15 +193,16 @@ public class SpringSecurityConfig {
         return httpSecurity.build();
     }
 
+    // Usuarios en memoria con operador noop
     /*@Bean
     public InMemoryUserDetailsManager inMemoryUserDetailsManager() {
 
-        /*
-            Para pruebas se usa withDefaultPasswordEncoder
-                -> Este método usa un codificador de contraseñas inseguro (simple en memoria)
-            Para produccion se usa PasswordEncoder como BCryptPasswordEncoder
-                -> Aplica un hashing seguro a las contraseñas
-         */
+        
+            //Para pruebas se usa withDefaultPasswordEncoder
+                //-> Este método usa un codificador de contraseñas inseguro (simple en memoria)
+            //Para produccion se usa PasswordEncoder como BCryptPasswordEncoder
+                //-> Aplica un hashing seguro a las contraseñas
+         
         /*UserDetails programador = User.builder()
                 .username("programador")
                 .password("{noop}1234")
@@ -209,15 +223,17 @@ public class SpringSecurityConfig {
 
         return new InMemoryUserDetailsManager(programador, administrador, analista);
     }*/
+    
+    @Bean
+    public UserDetailsService jdbcUserDetailsService(DataSource dataSource) {
+        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
 
-//    @Bean
-//    public UserDetailsService jdbcUserDetailsService(DataSource dataSource) {
-//        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
-//
-//        jdbcUserDetailsManager.setUsersByUsernameQuery("SELECT username, password, status FROM usuario WHERE username = ?");
-//
-//        jdbcUserDetailsManager.setAuthoritiesByUsernameQuery("SELECT username, nombrerol FROM rolmanager WHERE username = ?");
-//
-//        return jdbcUserDetailsManager;
-//    }
+        jdbcUserDetailsManager.setUsersByUsernameQuery("SELECT username, password, status FROM usuario WHERE username = ?");
+
+        jdbcUserDetailsManager.setAuthoritiesByUsernameQuery(
+                "SELECT username, CONCAT('ROLE_',nombrerol) AS authority FROM rolmanager WHERE username = ?");
+
+        return jdbcUserDetailsManager;
+    }
+
 }

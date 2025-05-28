@@ -35,13 +35,13 @@
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/Usuario}">Inicio</a>
                 </li>
-                <li class="nav-item" sec:authorize="hasRole('PROGRAMADOR')">
+                <li class="nav-item" sec:authorize="hasAnyRole('PROGRAMADOR','Administrador')">
                     <a class="nav-link" th:href="@{/Usuario/Form/0}">Agregar usuario</a>
                 </li>
-                <li class="nav-item" sec:authorize="hasAnyRole('PROGRAMADOR','ADMINISTRADOR')">
+                <li class="nav-item" sec:authorize="hasAnyRole('PROGRAMADOR','Administrador','ADMINISTRADOR','Comprador')">
                     <a class="nav-link" th:href="@{/Usuario/CargaMasiva}">Carga Masiva</a>
                 </li>
-                <li class="nav-item" sec:authorize="hasRole('PROGRAMADOR')">
+                <li class="nav-item" sec:authorize="hasAnyRole('PROGRAMADOR','Administrador')">
                     <a class="nav-link" href="#">Navbar</a>
                 </li>
             </ul>

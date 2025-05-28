@@ -18,7 +18,7 @@
             <button onclick="window.history.back()" class="btn btn-danger ">
                 <i class="bi bi-x-circle"></i>
                 <span
-                    th:text="${#authorization.expression('hasRole(''PROGRAMADOR'')')} ? 'Cancelar' : 'Retroceder'"></span>
+                    th:text="${#authorization.expression('hasRole(''Administrador'')')} ? 'Cancelar' : 'Retroceder'"></span>
             </button>
         </div>
 
@@ -153,12 +153,18 @@
                                 th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                             <span id="correoError" class="text-danger"></span>
                         </div>
-                        <div class="col-12 col-md-6">
-                            <label for="PasswordUsuario" class="form-label"><i class="bi bi-key"></i> Contraseña</label>
-                            <input type="text" class="form-control" id="password" name="password"
-                                placeholder="Ingrese su contraseña" th:field="*{Usuario.Password}"
-                                onblur="validarPassword(event, this)"
-                                th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
+                        <div class="col-12 col-md-6 mb-3">
+                            <label for="password" class="form-label"><i class="bi bi-key"></i> Contraseña</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" th:field="*{Usuario.Password}" id="password"
+                                    name="password" placeholder="Ingrese su contraseña"
+                                    th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
+                                <!-- onblur="validarPassword(event, this)" -->
+                                <button class="btn btn-outline-secondary toggle-password" type="button"
+                                    data-toggle="password" required>
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                             <span id="PasswordError" class="text-danger"></span>
                         </div>
                     </div>
@@ -245,7 +251,7 @@
                             th:disabled="${#authorization.expression('hasAnyRole(''ANALISTA'',''ADMINISTRADOR'')')}">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary btn-submit mt-3" sec:authorize="hasRole('PROGRAMADOR')"
+                <button type="submit" class="btn btn-primary btn-submit mt-3" sec:authorize="hasAnyRole('PROGRAMADOR','Administrador')"
                     th:text="*{(Usuario.IdUsuario) == 0 || (Direccion.IdDireccion) == 0 ? 'Agregar Datos' : 'Editar Datos'}">
                     <i class="bi bi-save"></i> Guardar Usuario
                 </button>
@@ -517,6 +523,23 @@
                 };
                 reader.readAsDataURL(file);
             }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleButtons = document.querySelectorAll(".toggle-password");
+
+            toggleButtons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const inputId = btn.getAttribute("data-toggle");
+                    const input = document.getElementById(inputId);
+                    const Icon = btn.querySelector("i");
+
+                    const isPassword = input.type === "password";
+                    input.type = isPassword ? "text" : "password";
+                    icon.classList.toggle("bi-eye", !isPassword);
+                    icon.classList.toggle("bi-eye-slash", isPassword);
+                });
+            });
         });
 
     </script>

@@ -23,6 +23,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 // Logica de base de datos
@@ -34,6 +35,9 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
 
     @Autowired
     private EntityManager entityManager;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public Result GetAll() {
@@ -243,7 +247,7 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
                 callableStatement.setString(8, usuarioDireccion.Usuario.getCURP());
                 callableStatement.setString(9, usuarioDireccion.Usuario.getUsername());
                 callableStatement.setString(10, usuarioDireccion.Usuario.getEmail());
-                callableStatement.setString(11, usuarioDireccion.Usuario.getPassword());
+                callableStatement.setString(11, passwordEncoder.encode(usuarioDireccion.Usuario.getPassword()));
                 callableStatement.setString(12, String.valueOf(usuarioDireccion.Usuario.getSexo()));
                 callableStatement.setString(13, usuarioDireccion.Usuario.getTelefono());
                 callableStatement.setString(14, usuarioDireccion.Direccion.getCalle());
@@ -285,7 +289,7 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
             usuarioJPA.setCURP(usuarioDireccion.Usuario.getCURP());
             usuarioJPA.setUsername(usuarioDireccion.Usuario.getUsername());
             usuarioJPA.setEmail(usuarioDireccion.Usuario.getEmail());
-            usuarioJPA.setPassword(usuarioDireccion.Usuario.getPassword());
+            usuarioJPA.setPassword(passwordEncoder.encode(usuarioDireccion.Usuario.getPassword()));
             usuarioJPA.setSexo(usuarioDireccion.Usuario.getSexo());
             usuarioJPA.setTelefono(usuarioDireccion.Usuario.getTelefono());
             usuarioJPA.setImagen(usuarioDireccion.Usuario.getImagen());
@@ -570,7 +574,7 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
                 callableStatement.setString(5, usuario.getImagen());
                 callableStatement.setString(6, usuario.getUsername());
                 callableStatement.setString(7, usuario.getEmail());
-                callableStatement.setString(8, usuario.getPassword());
+                callableStatement.setString(8, passwordEncoder.encode(usuario.getPassword()));
                 callableStatement.setDate(9, new java.sql.Date(usuario.getFNacimiento().getTime()));
                 callableStatement.setString(10, String.valueOf(usuario.getSexo()));
                 callableStatement.setString(11, usuario.getNCelular());
@@ -618,7 +622,7 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
 
                 usuarioJPA.setUsername(usuario.getUsername());
                 usuarioJPA.setEmail(usuario.getEmail());
-                usuarioJPA.setPassword(usuario.getPassword());
+                usuarioJPA.setPassword(passwordEncoder.encode(usuario.getPassword()));
                 usuarioJPA.setFNacimiento(usuario.getFNacimiento());
                 usuarioJPA.setSexo(usuario.getSexo());
                 usuarioJPA.setTelefono(usuario.getTelefono());
