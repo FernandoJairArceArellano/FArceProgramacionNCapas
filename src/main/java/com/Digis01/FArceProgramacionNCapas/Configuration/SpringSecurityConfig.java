@@ -1,6 +1,8 @@
 package com.Digis01.FArceProgramacionNCapas.Configuration;
 
 import javax.sql.DataSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -139,7 +140,6 @@ public class SpringSecurityConfig {
 //
 //        return new InMemoryUserDetailsManager(programador, administrador, analista);
 //    }
-    
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -148,9 +148,9 @@ public class SpringSecurityConfig {
                         configure -> configure
                                 .requestMatchers("/login", "/access-denied").permitAll()
                                 .requestMatchers("/Usuario").hasAnyRole("ADMINISTRADOR", "PROGRAMADOR", "ANALISTA", "Administrador", "Usuario", "Comprador", "Visitnate")
-                                .requestMatchers(HttpMethod.POST, "/Usuario/GetAllDinamico").hasAnyRole("ADMINISTRADOR", "Comprador","PROGRAMADOR", "Administrador","ANALISTA", "Usuario")
-                                .requestMatchers("/Usuario/CargaMasiva").hasAnyRole("ADMINISTRADOR", "Comprador","PROGRAMADOR", "Administrador")
-                                .requestMatchers(HttpMethod.GET, "/Usuario/**").hasAnyRole("ANALISTA", "Visitante","PROGRAMADOR", "Administrador","ADMINISTRADOR", "Comprador")
+                                .requestMatchers(HttpMethod.POST, "/Usuario/GetAllDinamico").hasAnyRole("ADMINISTRADOR", "Comprador", "PROGRAMADOR", "Administrador", "ANALISTA", "Usuario")
+                                .requestMatchers("/Usuario/CargaMasiva").hasAnyRole("ADMINISTRADOR", "Comprador", "PROGRAMADOR", "Administrador")
+                                .requestMatchers(HttpMethod.GET, "/Usuario/**").hasAnyRole("ANALISTA", "Visitante", "PROGRAMADOR", "Administrador", "ADMINISTRADOR", "Comprador")
                                 .requestMatchers(HttpMethod.POST, "/Usuario/**").hasAnyRole("PROGRAMADOR", "Administrador")
                                 .anyRequest().authenticated()
                 )
@@ -160,7 +160,7 @@ public class SpringSecurityConfig {
                     var roles = authentication.getAuthorities().toString();
 
                     // Redireccion dependiendo la condicion del rol (Ruta completa del controller)
-                    if (roles.contains("ROLE_Administrador")) {
+                    if (roles.contains("ROLE_Administrador")) {//"ROLE_Administrador,ROLE_PROGRAMADOR"
                         response.sendRedirect("/Usuario");
                     } else if (roles.contains("ROLE_Comprador")) {
                         response.sendRedirect("/Usuario/CargaMasiva");
@@ -203,7 +203,7 @@ public class SpringSecurityConfig {
             //Para produccion se usa PasswordEncoder como BCryptPasswordEncoder
                 //-> Aplica un hashing seguro a las contraseñas
          
-        /*UserDetails programador = User.builder()
+        UserDetails programador = User.builder()
                 .username("programador")
                 .password("{noop}1234")
                 .roles("PROGRAMADOR")
@@ -223,7 +223,6 @@ public class SpringSecurityConfig {
 
         return new InMemoryUserDetailsManager(programador, administrador, analista);
     }*/
-    
     @Bean
     public UserDetailsService jdbcUserDetailsService(DataSource dataSource) {
         JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);

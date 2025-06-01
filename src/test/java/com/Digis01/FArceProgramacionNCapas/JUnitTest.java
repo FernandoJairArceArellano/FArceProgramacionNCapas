@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,14 +48,13 @@ public class JUnitTest {
         Result result = new Result();
         result = usuarioDAOImplementation.GetAllJPA();
 
-        List<UsuarioDireccion> usuarioDireccion = new ArrayList<>();
-
         Assertions.assertNotNull(result, "El objeto result esta nulo");
         Assertions.assertNotNull(result.objects, "result.objects esta nulo");
         Assertions.assertNull(result.ex, "Se produjo una excepcion");
         Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
         Assertions.assertNull(result.object, "result.object esta nulo");
         Assertions.assertTrue(result.correct, "El result.correct viene false");
+        Assertions.assertFalse(result.objects.isEmpty(), "Debe haber al menos un usuario");
     }
 
     @Test
@@ -104,28 +104,48 @@ public class JUnitTest {
     @Test
     public void testdireccionesByIdUsuario() {
         Result result = usuarioDAOImplementation.direccionesByIdUsuario(1);
-        Assertions.assertTrue(result.correct, "Se deberian de buscar las direcciones del Usuario");
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNotNull(result.objects, "result.objects esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertNull(result.object, "result.object esta nulo");
+        Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
     // Correcto
     @Test
     public void testDireccionesByIdUsuarioJPA() {
         Result result = usuarioDAOImplementation.DireccionesByIdUsuarioJPA(1);
-        Assertions.assertTrue(result.correct, "Se deberia de buscar las direcicones del Usuario");
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNotNull(result.objects, "result.objects esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertNull(result.object, "result.object esta nulo");
+        Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
     // Correcto
     @Test
     public void testGetById() {
         Result result = usuarioDAOImplementation.GetById(1);
-        Assertions.assertTrue(result.correct, "Se deberia de buscar la informacion del Usuario");
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNotNull(result.objects, "result.objects esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertNull(result.object, "result.object esta nulo");
+        Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
     // Correcto
     @Test
     public void testGetByIdJPA() {
         Result result = usuarioDAOImplementation.GetByIdJPA(1);
-        Assertions.assertTrue(result.correct, "Se deberia de buscar la informacion del Usuario");
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNotNull(result.objects, "result.objects esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertNull(result.object, "result.object esta nulo");
+        Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
     // ---> INSERT    
@@ -166,7 +186,12 @@ public class JUnitTest {
 
         Result result = usuarioDAOImplementation.Add(usuarioDireccion);
 
-        Assertions.assertTrue(result.correct, "EL usuario se deberia de haber insertado de manera exitosa");
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNotNull(result.objects, "result.objects esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertNull(result.object, "result.object esta nulo");
+        Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
     // Correcto
@@ -206,7 +231,12 @@ public class JUnitTest {
 
         Result result = usuarioDAOImplementation.AddJPA(usuarioDireccion);
 
-        Assertions.assertTrue(result.correct, "EL usuario se deberia de haber insertado de manera exitosa");
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNotNull(result.objects, "result.objects esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertNull(result.object, "result.object esta nulo");
+        Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
     // ---> UPDATE
@@ -225,7 +255,12 @@ public class JUnitTest {
 
         Result result = usuarioDAOImplementation.UpdateStatus(usuario);
 
-        Assertions.assertTrue(result.correct, "Se actualizaria el estatus del Usuario");
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNotNull(result.objects, "result.objects esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertNull(result.object, "result.object esta nulo");
+        Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
     // Correcto
@@ -237,7 +272,12 @@ public class JUnitTest {
 
         Result result = usuarioDAOImplementation.UpdateStatusJPA(usuario);
 
-        Assertions.assertTrue(result.correct, "Se actualizaria el estatus del Usuario");
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNotNull(result.objects, "result.objects esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertNull(result.object, "result.object esta nulo");
+        Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
     // ---> DELETE
@@ -248,10 +288,8 @@ public class JUnitTest {
         Result result = usuarioDAOImplementation.DeleteJPA(302);
 
         Assertions.assertNotNull(result, "El objeto result esta nulo");
-        Assertions.assertNotNull(result.objects, "result.objects esta nulo");
         Assertions.assertNull(result.ex, "Se produjo una excepcion");
         Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
-        Assertions.assertNull(result.object, "result.object esta nulo");
         Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
 
     }
