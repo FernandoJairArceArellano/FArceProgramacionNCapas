@@ -1,11 +1,13 @@
 package com.Digis01.FArceProgramacionNCapas;
 
+import com.Digis01.FArceProgramacionNCapas.DAO.ColoniaDAOImplementation;
+import com.Digis01.FArceProgramacionNCapas.DAO.DireccionDAOImplementation;
+import com.Digis01.FArceProgramacionNCapas.DAO.EstadoDAOImplementation;
+import com.Digis01.FArceProgramacionNCapas.DAO.MunicipioDAOImplementation;
+import com.Digis01.FArceProgramacionNCapas.DAO.PaisDAOImplementation;
 import com.Digis01.FArceProgramacionNCapas.DAO.UsuarioDAOImplementation;
 import com.Digis01.FArceProgramacionNCapas.ML.Colonia;
 import com.Digis01.FArceProgramacionNCapas.ML.Direccion;
-import com.Digis01.FArceProgramacionNCapas.ML.Estado;
-import com.Digis01.FArceProgramacionNCapas.ML.Municipio;
-import com.Digis01.FArceProgramacionNCapas.ML.Pais;
 import com.Digis01.FArceProgramacionNCapas.ML.Rol;
 import com.Digis01.FArceProgramacionNCapas.ML.Usuario;
 import com.Digis01.FArceProgramacionNCapas.ML.Result;
@@ -14,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,8 +26,23 @@ public class JUnitTest {
     @Autowired
     private UsuarioDAOImplementation usuarioDAOImplementation;
 
+    @Autowired
+    private DireccionDAOImplementation direccionDAOImplementation;
+
+    @Autowired
+    private PaisDAOImplementation paisDAOImplementation;
+
+    @Autowired
+    private EstadoDAOImplementation estadoDAOImplementation;
+
+    @Autowired
+    private MunicipioDAOImplementation municipioDAOImplementation;
+
+    @Autowired
+    private ColoniaDAOImplementation coloniaDAOImplementation;
+
     // ---> SELECT
-    // Correcto
+    // Usuario
     @Test
     public void testGetAll() {
         Result result = new Result();
@@ -42,7 +58,6 @@ public class JUnitTest {
         Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
-    // Correcto
     @Test
     public void testGetAllJPA() {
         Result result = new Result();
@@ -100,7 +115,6 @@ public class JUnitTest {
         Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
-    // Correcto
     @Test
     public void testdireccionesByIdUsuario() {
         Result result = usuarioDAOImplementation.direccionesByIdUsuario(1);
@@ -112,7 +126,6 @@ public class JUnitTest {
         Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
-    // Correcto
     @Test
     public void testDireccionesByIdUsuarioJPA() {
         Result result = usuarioDAOImplementation.DireccionesByIdUsuarioJPA(1);
@@ -124,7 +137,6 @@ public class JUnitTest {
         Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
-    // Correcto
     @Test
     public void testGetById() {
         Result result = usuarioDAOImplementation.GetById(1);
@@ -136,7 +148,6 @@ public class JUnitTest {
         Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
-    // Correcto
     @Test
     public void testGetByIdJPA() {
         Result result = usuarioDAOImplementation.GetByIdJPA(1);
@@ -149,7 +160,6 @@ public class JUnitTest {
     }
 
     // ---> INSERT    
-    // Correcto
     @Test
     public void testAddUsuarioAdd() {
         UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
@@ -194,7 +204,6 @@ public class JUnitTest {
         Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
-    // Correcto
     @Test
     public void testAddUsuarioAddJPA() {
         UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
@@ -242,10 +251,62 @@ public class JUnitTest {
     // ---> UPDATE
     @Test
     public void testUpdate() {
+        Usuario usuario = new Usuario();
+        usuario.setIdUsuario(301);
+        usuario.setNombre("Mark");
+        usuario.setApellidoPaterno("Sinclair");
+        usuario.setApellidoMaterno("Vincent");
+        usuario.setImagen(null);
+        usuario.setUsername("charger 1970");
+        usuario.setEmail("vincent@mail.com");
+        usuario.setPassword("1234");
+        usuario.setFNacimiento(new Date(19800530L));
+        usuario.setSexo('M');
+        usuario.setNCelular("5512345678");
+        usuario.setTelefono("5588776655");
+        usuario.setCURP("PEJL900101HDFRZN00");
+
+        Rol rol = new Rol();
+        rol.setIdRol(1);
+        usuario.setRol(rol);
         
+        Result result = usuarioDAOImplementation.UpdateJPA(usuario);
+        
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "El result.correct viene false");
+    }
+    
+    @Test
+    public void testUpdateJPA() {
+        Usuario usuario = new Usuario();
+        usuario.setIdUsuario(306);
+        usuario.setNombre("Paul");
+        usuario.setApellidoPaterno("William");
+        usuario.setApellidoMaterno("Walker IV");
+        usuario.setImagen(null);
+        usuario.setUsername("pepepepepeepep");
+        usuario.setEmail("walkerIV@mail.com");
+        usuario.setPassword("1234");
+        usuario.setFNacimiento(new Date(20020530L));
+        usuario.setSexo('M');
+        usuario.setNCelular("5512345678");
+        usuario.setTelefono("5588776655");
+        usuario.setCURP("PEJL900101HDFRZN00");
+
+        Rol rol = new Rol();
+        rol.setIdRol(1);
+        usuario.setRol(rol);
+        
+        Result result = usuarioDAOImplementation.UpdateJPA(usuario);
+        
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
-    // Correcto
     @Test
     public void testUpdateStatus() {
         Usuario usuario = new Usuario();
@@ -263,7 +324,6 @@ public class JUnitTest {
         Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
 
-    // Correcto
     @Test
     public void testUpdateStatusJPA() {
         Usuario usuario = new Usuario();
@@ -281,7 +341,6 @@ public class JUnitTest {
     }
 
     // ---> DELETE
-    // Correcto
     @Test
     public void testDeleteJPA() {
 
@@ -293,4 +352,231 @@ public class JUnitTest {
         Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
 
     }
+
+    // Direccion
+    // ---> INSERT    
+    @Test
+    public void testDireccionAdd() {
+        UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
+
+        Usuario usuario = new Usuario();
+        usuario.setIdUsuario(1);
+
+        usuarioDireccion.setUsuario(usuario);
+
+        Direccion direccion = new Direccion();
+        direccion.setCalle("Insurgentes");
+        direccion.setNumeroExterior("100");
+        direccion.setNumeroInterior("10");
+
+        Colonia colonia = new Colonia();
+        colonia.setIdColonia(1); // Asegúrate que exista
+        direccion.setColonia(colonia);
+        usuarioDireccion.setDireccion(direccion);
+
+        Result result = direccionDAOImplementation.DireccionAdd(usuarioDireccion);
+
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
+    }
+
+    @Test
+    public void testDireccionAddJPA() {
+        UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
+
+        Usuario usuario = new Usuario();
+        usuario.setIdUsuario(1);
+
+        usuarioDireccion.setUsuario(usuario);
+
+        Direccion direccion = new Direccion();
+        direccion.setCalle("Insurgentes");
+        direccion.setNumeroExterior("100");
+        direccion.setNumeroInterior("10");
+
+        Colonia colonia = new Colonia();
+        colonia.setIdColonia(1); // Asegúrate que exista
+        direccion.setColonia(colonia);
+        usuarioDireccion.setDireccion(direccion);
+
+        Result result = direccionDAOImplementation.DireccionAddJPA(usuarioDireccion);
+
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
+    }
+
+    // ---> SELECT
+    @Test
+    public void testGetByIdDireccion() {
+        Result result = direccionDAOImplementation.GetById(2);
+
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
+    }
+
+    @Test
+    public void testGetByIdJPADireccion() {
+        Result result = direccionDAOImplementation.GetByIdJPA(2);
+
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
+    }
+
+    // ---> UPDATE
+    @Test
+    public void testUpdateByIdDireccion() {
+        UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
+        Usuario usuario = new Usuario();
+
+        usuario.setIdUsuario(1);
+
+        usuarioDireccion.setUsuario(usuario);
+
+        Direccion direccion = new Direccion();
+        direccion.setIdDireccion(256);
+        direccion.setCalle("Insurgentes");
+        direccion.setNumeroExterior("1");
+        direccion.setNumeroInterior("1");
+
+        Colonia colonia = new Colonia();
+        colonia.setIdColonia(1); // Asegúrate que exista
+        direccion.setColonia(colonia);
+        usuarioDireccion.setDireccion(direccion);
+
+        Result result = direccionDAOImplementation.UpdateById(usuarioDireccion);
+
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
+    }
+
+    @Test
+    public void testUpdateByIdDireccionJPA() {
+        UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
+        Usuario usuario = new Usuario();
+
+        usuario.setIdUsuario(2);
+
+        usuarioDireccion.setUsuario(usuario);
+
+        Direccion direccion = new Direccion();
+        direccion.setIdDireccion(244);
+        direccion.setCalle("Insurgentes");
+        direccion.setNumeroExterior("1");
+        direccion.setNumeroInterior("1");
+
+        Colonia colonia = new Colonia();
+        colonia.setIdColonia(1); // Asegúrate que exista
+        direccion.setColonia(colonia);
+        usuarioDireccion.setDireccion(direccion);
+
+        Result result = direccionDAOImplementation.UpdateByIdJPA(usuarioDireccion);
+
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
+    }
+
+    // ---> DELETE
+    @Test
+    public void testDeleteDIreccionJPA() {
+        Result result = direccionDAOImplementation.DeleteDireccionJPA(258);
+
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
+    }
+
+    // DDL PAIS, ESTADO, MUNICIPIO, COLONIA
+    @Test
+    public void testGetAllPais() {
+        Result result = paisDAOImplementation.GetAll();
+
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
+    }
+
+    @Test
+    public void testGetAllPaisJPA() {
+        Result result = paisDAOImplementation.GetAllJPA();
+
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
+    }
+
+    @Test
+    public void testEstadoByIdPais() {
+        Result result = estadoDAOImplementation.EstadoByIdPais(1);
+
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
+    }
+
+    @Test
+    public void testEstadoByIdPaisJPA() {
+        Result result = estadoDAOImplementation.EstadoByIdPaisJPA(1);
+
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
+    }
+
+    @Test
+    public void testMunicipioByIdEstado() {
+        Result result = municipioDAOImplementation.MunicipioByIdEstado(1);
+
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
+    }
+
+    @Test
+    public void testMunicipioByIdEstadoJPA() {
+        Result result = municipioDAOImplementation.MunicipioByIdEstadoJPA(1);
+
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
+    }
+
+    @Test
+    public void testColoniaByIdMunicipio() {
+        Result result = coloniaDAOImplementation.ColoniaByIdMunicipio(1);
+
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
+    }
+
+    @Test
+    public void testColoniaByIdMunicipioJPA() {
+        Result result = coloniaDAOImplementation.ColoniaByIdMunicipioJPA(1);
+
+        Assertions.assertNotNull(result, "El objeto result esta nulo");
+        Assertions.assertNull(result.ex, "Se produjo una excepcion");
+        Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
+        Assertions.assertTrue(result.correct, "La eliminacion del usuario y sus direcciones no se realizo");
+    }
+
 }
