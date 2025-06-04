@@ -104,6 +104,11 @@ public class UsuarioController {
 
         return "UsuarioIndex";
     }
+    
+    @GetMapping("/iniciarSesion")
+    public String login(){
+        return "login";
+    }
 
     @GetMapping("Form/{IdUsuario}")
     public String Form(@PathVariable int IdUsuario, Model model) {

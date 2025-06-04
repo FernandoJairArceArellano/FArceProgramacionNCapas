@@ -161,7 +161,7 @@ public class JUnitTest {
 
     // ---> INSERT    
     @Test
-    public void testAddUsuarioAdd() {
+    public void testUsuarioAdd() {
         UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
 
         Usuario usuario = new Usuario();
@@ -205,7 +205,7 @@ public class JUnitTest {
     }
 
     @Test
-    public void testAddUsuarioAddJPA() {
+    public void testUsuarioAddJPA() {
         UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
 
         Usuario usuario = new Usuario();
@@ -269,15 +269,15 @@ public class JUnitTest {
         Rol rol = new Rol();
         rol.setIdRol(1);
         usuario.setRol(rol);
-        
+
         Result result = usuarioDAOImplementation.UpdateJPA(usuario);
-        
+
         Assertions.assertNotNull(result, "El objeto result esta nulo");
         Assertions.assertNull(result.ex, "Se produjo una excepcion");
         Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
         Assertions.assertTrue(result.correct, "El result.correct viene false");
     }
-    
+
     @Test
     public void testUpdateJPA() {
         Usuario usuario = new Usuario();
@@ -298,9 +298,9 @@ public class JUnitTest {
         Rol rol = new Rol();
         rol.setIdRol(1);
         usuario.setRol(rol);
-        
+
         Result result = usuarioDAOImplementation.UpdateJPA(usuario);
-        
+
         Assertions.assertNotNull(result, "El objeto result esta nulo");
         Assertions.assertNull(result.ex, "Se produjo una excepcion");
         Assertions.assertNull(result.errorMessage, "Se envia un mensaje de error");
