@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootTest
@@ -170,7 +171,6 @@ public class MockitoTest {
     // Correcto
     @Test
     public void testGetAllJPAMockito() {
-        // Usuario JPA
         com.Digis01.FArceProgramacionNCapas.JPA.Usuario usuario1 = new com.Digis01.FArceProgramacionNCapas.JPA.Usuario();
         usuario1.setIdUsuario(1);
         usuario1.setNombre("Fernando");
@@ -232,7 +232,6 @@ public class MockitoTest {
 
     @Test
     public void testGetAllDinamicoMockito() throws Exception {
-        // Simulacion de un ResultSet
         ResultSet rsMock = mock(ResultSet.class);
         Mockito.when(rsMock.next()).thenReturn(true, false);
 
@@ -296,7 +295,6 @@ public class MockitoTest {
         rol.setIdRol(1);
         usuario.setRol(rol);
 
-        // Ejecutar el método
         Result result = usuarioDAOImplementation.GetAllDinamico(usuario);
 
         Assertions.assertNotNull(result, "El objeto result esta nulo");
@@ -331,7 +329,6 @@ public class MockitoTest {
 
     @Test
     public void testGetAllDinamicoJPAMockito() {
-        // Simular el usuario JPA
         com.Digis01.FArceProgramacionNCapas.JPA.Usuario usuarioJPA = new com.Digis01.FArceProgramacionNCapas.JPA.Usuario();
         usuarioJPA.setIdUsuario(1);
         usuarioJPA.setNombre("Juan");
@@ -401,30 +398,232 @@ public class MockitoTest {
 
     // ---> INSERT
     @Test
-    public void testdireccionesByIdUsuarioMockito() {
+    public void testdireccionesByIdUsuarioMockito() throws SQLException {
+        int userId = 1;
 
+        // Mocks
+        ResultSet mockUsuarioResultSet = Mockito.mock(ResultSet.class);
+        ResultSet mockDireccionesResultSet = Mockito.mock(ResultSet.class);
+        CallableStatement mockCallable = Mockito.mock(CallableStatement.class);
+
+        Mockito.when(mockCallable.getObject(1)).thenReturn(mockUsuarioResultSet);
+        Mockito.when(mockCallable.getObject(2)).thenReturn(mockDireccionesResultSet);
+
+        // Simular datos del usuario
+        Mockito.when(mockUsuarioResultSet.next()).thenReturn(true);
+        Mockito.when(mockUsuarioResultSet.getInt("IdUsuario")).thenReturn(userId);
+        Mockito.when(mockUsuarioResultSet.getString("NombreUsuario")).thenReturn("Fernando");
+        Mockito.when(mockUsuarioResultSet.getString("ApellidoPaterno")).thenReturn("Arce");
+        Mockito.when(mockUsuarioResultSet.getString("ApellidoMaterno")).thenReturn("Arellano");
+        Mockito.when(mockUsuarioResultSet.getNString("Username")).thenReturn("FArceArellano");
+        Mockito.when(mockUsuarioResultSet.getString("Email")).thenReturn("fernando.aa@gmail.com");
+        Mockito.when(mockUsuarioResultSet.getString("Password")).thenReturn("123456");
+        Mockito.when(mockUsuarioResultSet.getDate("FNacimiento")).thenReturn(new java.sql.Date(System.currentTimeMillis()));
+        Mockito.when(mockUsuarioResultSet.getString("Sexo")).thenReturn("M");
+        Mockito.when(mockUsuarioResultSet.getString("Telefono")).thenReturn("1234567890");
+        Mockito.when(mockUsuarioResultSet.getString("NCelular")).thenReturn("0987654321");
+        Mockito.when(mockUsuarioResultSet.getString("CURP")).thenReturn("AEAF020530HMCRRRA8");
+
+        // Simular datos de direcciones
+        Mockito.when(mockDireccionesResultSet.next()).thenReturn(true, false);
+        Mockito.when(mockDireccionesResultSet.getInt("IdDireccion")).thenReturn(10);
+        Mockito.when(mockDireccionesResultSet.getString("Calle")).thenReturn("Calle Fantasma");
+        Mockito.when(mockDireccionesResultSet.getString("NumeroExterior")).thenReturn("123");
+        Mockito.when(mockDireccionesResultSet.getString("NumeroInterior")).thenReturn("B");
+        Mockito.when(mockDireccionesResultSet.getInt("IdColonia")).thenReturn(5);
+        Mockito.when(mockDireccionesResultSet.getString("NombreColonia")).thenReturn("Colonia Centro");
+
+        Mockito.when(jdbcTemplate.execute(Mockito.anyString(), Mockito.any(CallableStatementCallback.class)))
+                .thenAnswer(invocation -> {
+                    CallableStatementCallback<Integer> callback = invocation.getArgument(1);
+                    return callback.doInCallableStatement(mockCallable);
+                });
+
+        Result result = usuarioDAOImplementation.direccionesByIdUsuario(userId);
+
+        Assertions.assertTrue(result.correct);
+        Assertions.assertNotNull(result.object);
+        UsuarioDireccion usuarioDireccion = (UsuarioDireccion) result.object;
+        Assertions.assertEquals("Fernando", usuarioDireccion.Usuario.getNombre());
+        Assertions.assertEquals(1, usuarioDireccion.Direcciones.size());
+        Assertions.assertEquals("Calle Fantasma", usuarioDireccion.Direcciones.get(0).getCalle());
     }
 
     @Test
     public void testdireccionesByIdUsuarioJPAMockito() {
-        com.Digis01.FArceProgramacionNCapas.JPA.Usuario usuario = new com.Digis01.FArceProgramacionNCapas.JPA.Usuario();
-        usuario.setIdUsuario(1);
+        int userId = 1;
 
+        // Mock Usuario JPA
+        com.Digis01.FArceProgramacionNCapas.JPA.Usuario usuarioJPA = new com.Digis01.FArceProgramacionNCapas.JPA.Usuario();
+        usuarioJPA.setIdUsuario(userId);
+        usuarioJPA.setNombre("Fernando");
+        usuarioJPA.setApellidoPaterno("Arce");
+        usuarioJPA.setApellidoMaterno("Arellano");
+        usuarioJPA.setUsername("FArceArellano");
+        usuarioJPA.setEmail("fernando.aa@gmail.com");
+        usuarioJPA.setPassword("123456");
+        usuarioJPA.setFNacimiento(new java.sql.Date(System.currentTimeMillis()));
+        usuarioJPA.setSexo('M');
+        usuarioJPA.setTelefono("1234567890");
+        usuarioJPA.setNCelular("0987654321");
+        usuarioJPA.setCURP("AEAF020530HMCRRRA8");
+
+        com.Digis01.FArceProgramacionNCapas.JPA.Rol rol = new com.Digis01.FArceProgramacionNCapas.JPA.Rol();
+        rol.setIdRol(1);
+        usuarioJPA.Rol = rol;
+
+        // Mock Dirección JPA
+        com.Digis01.FArceProgramacionNCapas.JPA.Direccion direccionJPA = new com.Digis01.FArceProgramacionNCapas.JPA.Direccion();
+        direccionJPA.setIdDireccion(10);
+        direccionJPA.setCalle("Calle Fantasma");
+        direccionJPA.setNumeroExterior("123");
+        direccionJPA.setNumeroInterior("B");
+        com.Digis01.FArceProgramacionNCapas.JPA.Colonia colonia = new com.Digis01.FArceProgramacionNCapas.JPA.Colonia();
+        colonia.setIdColonia(5);
+        colonia.setNombre("Colonia Centro");
+        direccionJPA.Colonia = colonia;
+
+        List<com.Digis01.FArceProgramacionNCapas.JPA.Direccion> direcciones = List.of(direccionJPA);
+
+        Mockito.when(entityManager.find(com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class, userId))
+                .thenReturn(usuarioJPA);
+
+        TypedQuery mockQuery = Mockito.mock(TypedQuery.class);
+        Mockito.when(mockQuery.getResultList()).thenReturn(direcciones);
+        Mockito.when(entityManager.createQuery(Mockito.anyString(), Mockito.eq(com.Digis01.FArceProgramacionNCapas.JPA.Direccion.class)))
+                .thenReturn(mockQuery);
+
+        Result result = usuarioDAOImplementation.DireccionesByIdUsuarioJPA(userId);
+
+        Assertions.assertTrue(result.correct);
+        Assertions.assertNotNull(result.object);
+        UsuarioDireccion usuarioDireccion = (UsuarioDireccion) result.object;
+        Assertions.assertEquals("Fernando", usuarioDireccion.Usuario.getNombre());
+        Assertions.assertEquals(1, usuarioDireccion.Direcciones.size());
+        Assertions.assertEquals("Calle Fantasma", usuarioDireccion.Direcciones.get(0).getCalle());
     }
 
     @Test
-    public void testGetByIdMockito() {
+    public void testGetByIdMockito() throws SQLException {
+        // Arrange: Simulación del ResultSet con datos esperados
+        ResultSet mockResultSet = Mockito.mock(ResultSet.class);
+        Mockito.when(mockResultSet.next()).thenReturn(true);
+        Mockito.when(mockResultSet.getInt("IdUsuario")).thenReturn(1);
+        Mockito.when(mockResultSet.getString("NombreUsuario")).thenReturn("Fernando Jair");
+        Mockito.when(mockResultSet.getString("ApellidoPaterno")).thenReturn("Arce");
+        Mockito.when(mockResultSet.getString("ApellidoMaterno")).thenReturn("Arellano");
+        Mockito.when(mockResultSet.getString("Imagen")).thenReturn("imagen.jpg");
+        Mockito.when(mockResultSet.getString("Username")).thenReturn("FArceArellano");
+        Mockito.when(mockResultSet.getString("Email")).thenReturn("fernando.aa@gmail.com");
+        Mockito.when(mockResultSet.getString("Password")).thenReturn("Contraseña123");
+        Mockito.when(mockResultSet.getDate("FNacimiento")).thenReturn((java.sql.Date) new java.util.Date(12051973L));
+        Mockito.when(mockResultSet.getString("Sexo")).thenReturn("M");
+        Mockito.when(mockResultSet.getString("Telefono")).thenReturn("5559242886");
+        Mockito.when(mockResultSet.getString("NCelular")).thenReturn("5540742014");
+        Mockito.when(mockResultSet.getString("CURP")).thenReturn("AEAF020530HMCRRRA8");
+        Mockito.when(mockResultSet.getInt("IdRol")).thenReturn(1);
+        Mockito.when(mockResultSet.getString("NombreRol")).thenReturn("Administrador");
 
+        // Simular llamada a jdbcTemplate.execute
+        Mockito.when(jdbcTemplate.execute(Mockito.anyString(), Mockito.any(CallableStatementCallback.class)))
+                .thenAnswer(invocation -> {
+                    CallableStatementCallback<Integer> callback = invocation.getArgument(1);
+                    CallableStatement mockCallable = Mockito.mock(CallableStatement.class);
+
+                    // Simulación del REF_CURSOR
+                    Mockito.when(mockCallable.getObject(2)).thenReturn(mockResultSet);
+
+                    return callback.doInCallableStatement(mockCallable);
+                });
+
+        // Act
+        Result result = usuarioDAOImplementation.GetById(1);
+
+        // Assert
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result.correct);
+        Assertions.assertNull(result.ex);
+        Assertions.assertNull(result.errorMessage);
+        Assertions.assertNotNull(result.object);
+        Assertions.assertInstanceOf(UsuarioDireccion.class, result.object);
+
+        UsuarioDireccion usuarioDireccion = (UsuarioDireccion) result.object;
+        Assertions.assertEquals(1, usuarioDireccion.Usuario.getIdUsuario());
+        Assertions.assertEquals("Fernando Jair", usuarioDireccion.Usuario.getNombre());
+        Assertions.assertEquals("Arce", usuarioDireccion.Usuario.getApellidoPaterno());
+        Assertions.assertEquals("Arellano", usuarioDireccion.Usuario.getApellidoMaterno());
+        Assertions.assertEquals("imagen.jpg", usuarioDireccion.Usuario.getImagen());
+        Assertions.assertEquals("FArceArellano", usuarioDireccion.Usuario.getUsername());
+        Assertions.assertEquals("fernando.aa@gmail.com", usuarioDireccion.Usuario.getEmail());
+        Assertions.assertEquals("Contraseña123", usuarioDireccion.Usuario.getPassword());
+        Assertions.assertEquals(new java.util.Date(12051973L), usuarioDireccion.Usuario.getFNacimiento());
+        Assertions.assertEquals('M', usuarioDireccion.Usuario.getSexo());
+        Assertions.assertEquals("5559242886", usuarioDireccion.Usuario.getTelefono());
+        Assertions.assertEquals("5540742014", usuarioDireccion.Usuario.getNCelular());
+        Assertions.assertEquals("AEAF020530HMCRRRA8", usuarioDireccion.Usuario.getCURP());
+        Assertions.assertEquals(1, usuarioDireccion.Usuario.getRol().getIdRol());
+        Assertions.assertEquals("Administrador", usuarioDireccion.Usuario.getRol().getNombre());
+
+        // Verificar ejecución del procedimiento
+        Mockito.verify(jdbcTemplate, Mockito.times(1))
+                .execute(Mockito.eq("CALL UsuarioGetById(?,?)"), Mockito.any(CallableStatementCallback.class));
     }
 
     @Test
     public void testGetByIdJPAMockito() {
+        com.Digis01.FArceProgramacionNCapas.JPA.Usuario usuarioJPA = new com.Digis01.FArceProgramacionNCapas.JPA.Usuario();
+        usuarioJPA.setIdUsuario(1);
+        usuarioJPA.setNombre("Fernando Jair");
+        usuarioJPA.setApellidoPaterno("Arce");
+        usuarioJPA.setApellidoMaterno("Arellano");
+        usuarioJPA.setUsername("FArceArellano");
+        usuarioJPA.setEmail("fernando.aa@gmail.com");
+        usuarioJPA.setPassword("Contraseña123");
+        usuarioJPA.setSexo('M');
+        usuarioJPA.setTelefono("5559242886");
+        usuarioJPA.setNCelular("5540742014");
+        usuarioJPA.setCURP("AEAF020530HMCRRRA8");
+        usuarioJPA.setImagen("imagen.jpg");
+        usuarioJPA.setFNacimiento(new java.util.Date(12051973L));
 
+        com.Digis01.FArceProgramacionNCapas.JPA.Rol rolJPA = new com.Digis01.FArceProgramacionNCapas.JPA.Rol();
+        rolJPA.setIdRol(1);
+        usuarioJPA.Rol = rolJPA;
+
+        Mockito.when(entityManager.find(com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class, 1)).thenReturn(usuarioJPA);
+
+        Result result = usuarioDAOImplementation.GetByIdJPA(1);
+
+        Assertions.assertNotNull(result, "El resultado no debe ser nulo");
+        Assertions.assertTrue(result.correct, "Se esperaba un resultado correcto");
+        Assertions.assertNull(result.errorMessage, "No debe haber mensaje de error");
+        Assertions.assertNull(result.ex, "No debe haber excepción");
+
+        Assertions.assertNotNull(result.object, "El objeto devuelto no debe ser nulo");
+        Assertions.assertInstanceOf(com.Digis01.FArceProgramacionNCapas.ML.UsuarioDireccion.class, result.object);
+
+        UsuarioDireccion usuarioDireccion = (UsuarioDireccion) result.object;
+        Assertions.assertEquals(1, usuarioDireccion.Usuario.getIdUsuario());
+        Assertions.assertEquals("Fernando Jair", usuarioDireccion.Usuario.getNombre());
+        Assertions.assertEquals("Arce", usuarioDireccion.Usuario.getApellidoPaterno());
+        Assertions.assertEquals("Arellano", usuarioDireccion.Usuario.getApellidoMaterno());
+        Assertions.assertEquals("FArceArellano", usuarioDireccion.Usuario.getUsername());
+        Assertions.assertEquals("fernando.aa@gmail.com", usuarioDireccion.Usuario.getEmail());
+        Assertions.assertEquals("Contraseña123", usuarioDireccion.Usuario.getPassword());
+        Assertions.assertEquals('M', usuarioDireccion.Usuario.getSexo());
+        Assertions.assertEquals("5559242886", usuarioDireccion.Usuario.getTelefono());
+        Assertions.assertEquals("5540742014", usuarioDireccion.Usuario.getNCelular());
+        Assertions.assertEquals("AEAF020530HMCRRRA8", usuarioDireccion.Usuario.getCURP());
+        Assertions.assertEquals("imagen.jpg", usuarioDireccion.Usuario.getImagen());
+        Assertions.assertEquals(new java.util.Date(12051973L), usuarioDireccion.Usuario.getFNacimiento());
+        Assertions.assertEquals(1, usuarioDireccion.Usuario.getRol().getIdRol());
+
+        // Verificar llamada a entityManager
+        Mockito.verify(entityManager, Mockito.times(1)).find(com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class, 1);
     }
 
     @Test
     public void testUsuarioAddMockito() {
-        // Preparar datos de prueba
         UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
         usuarioDireccion.Usuario = new Usuario();
         usuarioDireccion.Usuario.setNombre("Juan");
@@ -461,7 +660,6 @@ public class MockitoTest {
                     return callback.doInCallableStatement(cs);
                 });
 
-        // Ejecutar método
         Result result = usuarioDAOImplementation.Add(usuarioDireccion);
 
         // Verificaciones
@@ -480,7 +678,6 @@ public class MockitoTest {
     // Correcto
     @Test
     public void testUsuarioAddJPAMockito() {
-        // Preparar datos de prueba
         com.Digis01.FArceProgramacionNCapas.ML.UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
         usuarioDireccion.Usuario = new Usuario();
         usuarioDireccion.Usuario.setNombre("Juan");
@@ -508,10 +705,9 @@ public class MockitoTest {
         // Configurar mocks para la contraseña
         Mockito.when(passwordEncoder.encode(Mockito.anyString())).thenReturn("hashed123");
 
-        // El persist no devuelve nada, así que se hace doNothing()
+        // Capturar los datos y hacer algo
         Mockito.doNothing().when(entityManager).persist(Mockito.any());
 
-        // Ejecutar el método Add
         Result result = usuarioDAOImplementation.AddJPA(usuarioDireccion);
 
         // Verificaciones
@@ -561,11 +757,12 @@ public class MockitoTest {
         Result result = usuarioDAOImplementation.Update(usuario);
 
         Assertions.assertTrue(result.correct);
+
+        Mockito.verify(jdbcTemplate, Mockito.times(1)).execute(Mockito.anyString(), Mockito.any(CallableStatementCallback.class));
     }
 
     @Test
     public void testUpdateJPAUsuarioMockito() {
-        // Arrange
         UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
 
         // Configurar el usuario
@@ -601,7 +798,6 @@ public class MockitoTest {
         colonia.setIdColonia(1);
         direccion.setColonia(colonia);
 
-        // Asignar usuario y dirección a la clase intermedia
         usuarioDireccion.setUsuario(usuario);
         usuarioDireccion.setDireccion(direccion);
 
@@ -622,12 +818,59 @@ public class MockitoTest {
 
     @Test
     public void testUpdateStatusMockito() {
+        com.Digis01.FArceProgramacionNCapas.ML.Usuario usuario = new com.Digis01.FArceProgramacionNCapas.ML.Usuario();
+        usuario.setIdUsuario(1);
+        usuario.setNombre("Fernando Jair");
+        usuario.setApellidoPaterno("Arce");
+        usuario.setStatus(0); // Se quiere cambiar a 0
 
+        // Simulación de llamada exitosa al procedimiento almacenado
+        Mockito.when(jdbcTemplate.update(any(PreparedStatementCreator.class)))
+                .thenReturn(1); // Simula que se actualizó 1 fila
+
+        Result result = usuarioDAOImplementation.UpdateStatus(usuario);
+
+        Assertions.assertNotNull(result, "El objeto result no debe ser nulo");
+        Assertions.assertTrue(result.correct, "La actualización del status no se realizó correctamente");
+        Assertions.assertNull(result.errorMessage, "No debe haber mensaje de error");
+        Assertions.assertNull(result.ex, "No debe haber excepción");
+        Assertions.assertNull(result.object, "El objeto result.object debe ser nulo");
+        Assertions.assertNull(result.objects, "El objeto result.objects debe ser nulo");
+
+        // Verifica que se ejecutó el procedimiento almacenado una vez
+        Mockito.verify(jdbcTemplate, Mockito.times(1)).update(any(PreparedStatementCreator.class));
     }
 
     @Test
     public void testUpdateStatusJPAMockito() {
+        com.Digis01.FArceProgramacionNCapas.JPA.Usuario usuarioSimulado = new com.Digis01.FArceProgramacionNCapas.JPA.Usuario();
+        usuarioSimulado.setIdUsuario(1);
+        usuarioSimulado.setNombre("Fernando Jair");
+        usuarioSimulado.setApellidoMaterno("Arce");
+        usuarioSimulado.setSexo('M');
+        usuarioSimulado.setStatus(1); // Su estado actual es 1
+        usuarioSimulado.Rol = new com.Digis01.FArceProgramacionNCapas.JPA.Rol();
 
+        // Usuario que se recibe para actualizar el status
+        com.Digis01.FArceProgramacionNCapas.ML.Usuario usuario = new com.Digis01.FArceProgramacionNCapas.ML.Usuario();
+        usuario.setIdUsuario(1);
+        usuario.setStatus(0); // Se quiere cambiar a 0
+
+        // Simulación del entityManager
+        Mockito.when(entityManager.find(com.Digis01.FArceProgramacionNCapas.JPA.Usuario.class, 1)).thenReturn(usuarioSimulado);
+
+        Result result = usuarioDAOImplementation.UpdateStatusJPA(usuario);
+
+        Assertions.assertNotNull(result, "El objeto result no debe ser nulo");
+        Assertions.assertTrue(result.correct, "La actualización del status no se realizó correctamente");
+        Assertions.assertNull(result.errorMessage, "No debe haber mensaje de error");
+        Assertions.assertNull(result.ex, "No debe haber excepción");
+        Assertions.assertEquals(0, usuarioSimulado.getStatus(), "El status del usuario no fue actualizado correctamente");
+        Assertions.assertNull(result.object);
+        Assertions.assertNull(result.objects);
+
+        // Verificar que merge fue llamado
+        Mockito.verify(entityManager, Mockito.times(1)).merge(usuarioSimulado);
     }
 
     // ---> DELETE
@@ -659,7 +902,7 @@ public class MockitoTest {
         usuarioDireccion.Direccion.Colonia = new Colonia();
         usuarioDireccion.Direccion.Colonia.setIdColonia(1);
 
-        when(passwordEncoder.encode(anyString())).thenReturn("hashed123");
+        Mockito.when(passwordEncoder.encode(anyString())).thenReturn("hashed123");
 
         doNothing().when(entityManager).persist(any());
 
@@ -676,7 +919,7 @@ public class MockitoTest {
     }
 
     // Direccion
-    // DDL PAIS, ESTADO, MUNICIPIO, COLONIA
+    // Catalogo PAIS, ESTADO, MUNICIPIO, COLONIA
     @Test
     public void testGetAllPaisMockito() throws SQLException {
         // Mock de ResultSet
