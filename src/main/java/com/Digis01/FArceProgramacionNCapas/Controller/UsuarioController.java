@@ -104,9 +104,13 @@ public class UsuarioController {
 
         return "UsuarioIndex";
     }
-    
-    @GetMapping("/iniciarSesion")
-    public String login(){
+
+    @RequestMapping("/iniciarSesion")
+    public String login(@RequestParam(required = false) String error, Model model) {
+        if (error != null) {
+            model.addAttribute("alertType", "danger");
+            model.addAttribute("alertMessage", "Credenciales incorrectas. Por favor, inténtalo de nuevo.");
+        }
         return "login";
     }
 
